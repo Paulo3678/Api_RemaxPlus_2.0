@@ -18,7 +18,7 @@ class UsuarioFactory
             $dados = DB::select("SELECT * FROM Usuario WHERE {$modoBusca[0]}={$modoBusca[1]}");
         }
 
-        if(count($dados) === 0){
+        if (count($dados) === 0) {
             return false;
         }
 
@@ -30,5 +30,17 @@ class UsuarioFactory
             ->setHierarquia($dados[0]->Hierarquia);
 
         return $usuario;
+    }
+
+    public function createUsuario(UsuarioModel $usuario): bool
+    {
+        $dadosInserios  =   DB::insert("INSERT INTO Usuario(Nome, Email, Senha, Hierarquia) 
+            VALUES ('{$usuario->getNome()}', '{$usuario->getEmail()}', '{$usuario->getSenha()}', '{$usuario->getHierarquia()}');
+        ");
+
+        if (!$dadosInserios) {
+            return false;
+        }
+        return true;
     }
 }

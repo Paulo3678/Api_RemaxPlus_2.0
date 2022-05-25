@@ -6,11 +6,13 @@ use App\Models\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Http\Request;
+use App\Factory\UsuarioFactory;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
+
     /**
      * Register any application services.
      *
@@ -30,15 +32,20 @@ class AuthServiceProvider extends ServiceProvider
     {
         // VERIFICADOR DO TOKEN, "null" para erro na busca
         $this->app['auth']->viaRequest('api', function (Request $request) {
+            $usuarioFactory = new UsuarioFactory();
+
             $cabecalho = $request->header("Authorization");
             $token = str_replace("Bearer ", "", $cabecalho);
 
-            $tokenDecodificado = JWT::decode($token, new Key(env('JWT_KEY'), env('JWT_ALG')));
-            var_dump($tokenDecodificado);
+            $userId = JWT::decode($token, new Key(env('JWT_KEY'), env('JWT_ALG')))->usuario_id;
 
-            // if ($request->input('api_token')) {
-            //     return User::where('api_token', $request->input('api_token'))->first();
-            // }
+            $usuario = $usuarioFactory->getUsuario(["id", $userId]);
+
+            if(!$usuario){
+                return null;
+            }
+
+            return $usuario;
         });
     }
 }
