@@ -43,4 +43,16 @@ class UsuarioFactory
         }
         return true;
     }
+
+    public function getUsuarios()
+    {
+        $usuarios = DB::select("SELECT * FROM Usuario");
+        return $usuarios;
+    }
+
+    public function removeUsuario(int $userId)
+    {
+        $usuarioRemovido = DB::delete("DELETE FROM Usuario WHERE id={$userId}");
+        return $usuarioRemovido;
+    }
 }

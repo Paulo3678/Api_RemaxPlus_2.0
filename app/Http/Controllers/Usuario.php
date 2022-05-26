@@ -13,44 +13,18 @@ class Usuario extends Controller
 
     private $usuarioFactory;
 
-    public function __construct() {
-        $this->usuarioFactory = new UsuarioFactory();
-    }
-
-    // GERADOR DE TOKENS
-    public function login(Request $request)
+    public function __construct()
     {
-        $email  = $request->input("email");
-        $senha  = $request->input("senha");
-
-        if(is_null($email) && is_null($senha)){
-            return response()->json(["Necessário passar E-mail e Senha!"], 403);
-        }
-
-        $usuario = $this->usuarioFactory->getUsuario(["email", $email]);
-        
-        if(!$usuario){
-            return response()->json("E-mail ou Senha inválidos!", 403);
-        }
-
-        $usuarioEhValido = $this->validarUsuario($senha, $usuario);
-
-        if(!$usuarioEhValido){
-            return response()->json("Usuário inválido, e-mail ou senha não correspondem!", 403);          
-        }
-
-        $jwt = JWT::encode(["usuario_id" => $usuario->getId()], env('JWT_KEY'), env('JWT_ALG'));
-        
-        return response()->json($jwt);
+        $this->usuarioFactory = new UsuarioFactory();
     }
 
     public function cadastrarUsuario(Request $request)
     {
-        $cabecalhoHttp = $request->header("Authorization");        
+        $cabecalhoHttp = $request->header("Authorization");
         $token = $this->buscarToken($cabecalhoHttp);
         $usuarioEhAdm = $this->validarAdm($token->usuario_id);
 
-        if(!$usuarioEhAdm){
+        if (!$usuarioEhAdm) {
             return response()->json(["Opss... Essa página só é permitida para usuários administradores"], 403);
         }
 
@@ -59,14 +33,14 @@ class Usuario extends Controller
         $senha      = $request->input("senha");
         $hierarquia = $request->input("hierarquia");
 
-        if(is_null($nome) || is_null($email) ||is_null($senha) ||is_null($hierarquia)){
+        if (is_null($nome) || is_null($email) || is_null($senha) || is_null($hierarquia)) {
             return response()->json(["Favor informar nome, email, senha e a hierarquia do usuario"]);
         }
 
-        $senha  = password_hash($senha, env('PASS_HASH'));
+        $senha  = password_hash($senha, PASSWORD_ARGON2I);
 
-        if($hierarquia !== "adm" || $hierarquia !== "com"){
-            return response()->json(["Favor informar uma hierarquia"]);
+        if (!$hierarquia === "adm" && !$hierarquia === "com") {
+            return response()->json(["Favor informar uma hierarquia válida"]);
         }
 
         $usuario = new UsuarioModel();
@@ -75,36 +49,75 @@ class Usuario extends Controller
             ->setSenha($senha)
             ->setHierarquia($hierarquia);
 
-        
 
+        $retorno = $this->usuarioFactory->createUsuario($usuario);
 
-    }
-
-
-    private function validarUsuario($senhaDigitada, UsuarioModel $usuario)
-    {
-        if(!password_verify($senhaDigitada, $usuario->getSenha())){
-            return false;
+        if(!$retorno){
+            return response()->json(["Erro ao criar usuário, verifique os campos ou tente mais tarde"], 403);
         }
 
-        return true;
+        return response()->json(['Usuário criado com sucesso!'], 200);
+
     }
 
-    private function buscarToken($cabecalho){
+    public function excluirUsuario(Request $request)
+    {
+        $cabecalhoHttp = $request->header("Authorization");
+        $token = $this->buscarToken($cabecalhoHttp);
+        $usuarioEhAdm = $this->validarAdm($token->usuario_id);
+
+        if (!$usuarioEhAdm) {
+            return response()->json(["Opss... Essa página só é permitida para usuários administradores"], 403);
+        }
+
+        $idDoUsuarioParaExluir = $request->input("idParaExcluir");
+
+        if(!$idDoUsuarioParaExluir){
+            return response()->json(['Favor informar o id do usuário que deseja remover']);
+        }
+
+        $retorno = $this->usuarioFactory->removeUsuario($idDoUsuarioParaExluir);
+
+        if($retorno === 0){
+            return response()->json(['Erro ao remover usuario! Verifique se o usuário ainda existe.']);
+        }
+
+        return response()->json(["Usuário removido com sucesso!"], 200);
+
+    }
+
+    public function buscarTodosUsuarios(Request $request)
+    {
+        $cabecalhoHttp = $request->header("Authorization");
+        $token = $this->buscarToken($cabecalhoHttp);
+        $usuarioEhAdm = $this->validarAdm($token->usuario_id);
+
+        if (!$usuarioEhAdm) {
+            return response()->json(["Opss... Essa página só é permitida para usuários administradores"], 403);
+        }
+
+        $usuarios = $this->usuarioFactory->getUsuarios();
+
+        return response()->json($usuarios, 200);
+
+    }
+
+    private function buscarToken($cabecalho)
+    {
         $token = str_replace("Bearer ", "", $cabecalho);
         $tokenDecodificado = JWT::decode($token, new Key(env('JWT_KEY'), env('JWT_ALG')));
         return $tokenDecodificado;
     }
 
-    private function validarAdm(int $userId){
+    private function validarAdm(int $userId)
+    {
         $usuario = $this->usuarioFactory->getUsuario(['id', $userId]);
         $hierarquiaUsuario = $usuario->getHierarquia();
 
-        if($hierarquiaUsuario !== "adm"){
+        if ($hierarquiaUsuario !== "adm") {
             return false;
         }
 
         return true;
-
     }
 }

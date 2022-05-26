@@ -35,7 +35,15 @@ class AuthServiceProvider extends ServiceProvider
             $usuarioFactory = new UsuarioFactory();
 
             $cabecalho = $request->header("Authorization");
+    
+            if(is_null($cabecalho)){
+                return null;
+            }
+
             $token = str_replace("Bearer ", "", $cabecalho);
+
+            // VALIDANDO EXPIRAÇÃO DO TOKEN
+            # Se não for mais válido: $this->jwt->setToken($token)->invalidate(true);
 
             $userId = JWT::decode($token, new Key(env('JWT_KEY'), env('JWT_ALG')))->usuario_id;
 

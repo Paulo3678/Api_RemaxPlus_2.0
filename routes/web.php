@@ -14,7 +14,7 @@
 */
 
 
-$router->post('/usuario/login', "Usuario@login");
+$router->post('/usuario/login', "Login@login");
 
 // Rotas que vão requisitar o login
 $router->group(['middleware' => 'auth'], function () use ($router) {
@@ -22,6 +22,13 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
         return $router->app->version();
     });
 
+    // GET
+    $router->get('/usuario/usuarios', 'Usuario@buscarTodosUsuarios');
+
+    // POST
     $router->post('/usuario/cadastrar', "Usuario@cadastrarUsuario");
+
+    // DELETE
+    $router->delete("/usuario/delete", "Usuario@excluirUsuario");
 
 });
