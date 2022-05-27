@@ -55,4 +55,13 @@ class UsuarioFactory
         $usuarioRemovido = DB::delete("DELETE FROM Usuario WHERE id={$userId}");
         return $usuarioRemovido;
     }
+
+    public function updateUsuario(UsuarioModel $usuario, int $usuarioId)
+    {
+        $statusAtualizacao = DB::update("UPDATE Usuario SET 
+            nome='{$usuario->getNome()}', email='{$usuario->getEmail()}', senha='{$usuario->getSenha()}', hierarquia='{$usuario->getHierarquia()}' 
+        WHERE id='$usuarioId';");
+
+        return $statusAtualizacao;
+    }
 }

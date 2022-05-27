@@ -24,11 +24,16 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 
     // GET
     $router->get('/usuario/usuarios', 'Usuario@buscarTodosUsuarios');
-
+    $router->get('/usuario/usuario/{usuarioId}', 'Usuario@buscarDadosUsuario');
+    
     // POST
     $router->post('/usuario/cadastrar', "Usuario@cadastrarUsuario");
 
     // DELETE
     $router->delete("/usuario/delete", "Usuario@excluirUsuario");
 
+    // PUT
+    $router->put("/usuario/atualizar", "Usuario@atualizarUsuario");
+    $router->put("/usuario/atualizar/senha", "Usuario@atualizarSenha");
+        
 });
