@@ -13,7 +13,8 @@ class Login extends Controller
 {
     private $usuarioFactory;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->usuarioFactory = new UsuarioFactory();
     }
 
@@ -39,13 +40,21 @@ class Login extends Controller
             return response()->json("Usuário inválido, e-mail ou senha não correspondem!", 403);
         }
 
-        $jwt = JWT::encode(["usuario_id" => $usuario->getId()], env('JWT_KEY'), env('JWT_ALG'));
+        $hierarquiaUsuario = $usuario->getHierarquia();
+
+        if ($hierarquiaUsuario === "adm") {
+            $jwt = JWT::encode(["usuario_id" => $usuario->getId(), "adm" => true], env('JWT_KEY'), env('JWT_ALG'));
+            return response()->json($jwt);
+        }
+
+
+        $jwt = JWT::encode(["usuario_id" => $usuario->getId(), "adm" => false], env('JWT_KEY'), env('JWT_ALG'));
         return response()->json($jwt);
     }
 
     private function validarUsuario($senhaDigitada, UsuarioModel $usuario)
     {
-        if(!password_verify($senhaDigitada, $usuario->getSenha())){
+        if (!password_verify($senhaDigitada, $usuario->getSenha())) {
             return false;
         }
 

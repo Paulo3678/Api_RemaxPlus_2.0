@@ -25,15 +25,20 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     // GET
     $router->get('/usuario/usuarios', 'Usuario@buscarTodosUsuarios');
     $router->get('/usuario/usuario/{usuarioId}', 'Usuario@buscarDadosUsuario');
-    
+    $router->get('/corretor/corretores', 'Corretor@buscarCorretores');
+    $router->get('/corretor/corretor/{idCorretorParaBuscar}', 'Corretor@buscarCorretor');
+
     // POST
     $router->post('/usuario/cadastrar', "Usuario@cadastrarUsuario");
+    $router->post('/corretor/criar', 'Corretor@criarCorretor');
+
 
     // DELETE
     $router->delete("/usuario/delete", "Usuario@excluirUsuario");
+    $router->delete("/corretor/delete", "Corretor@excluirCorretor");
 
     // PUT
     $router->put("/usuario/atualizar", "Usuario@atualizarUsuario");
     $router->put("/usuario/atualizar/senha", "Usuario@atualizarSenha");
-        
+    $router->put("/corretor/atualizar", "Corretor@atualizarCorretor");
 });
