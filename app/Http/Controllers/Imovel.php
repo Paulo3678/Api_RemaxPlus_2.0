@@ -2,11 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\ImovelFactory;
 use App\Models\ImovelModel;
 use Illuminate\Http\Request;
 
 class Imovel extends Controller
 {
+
+    private $imovelFactory;
+
+    public function __construct() {
+        $this->imovelFactory = new ImovelFactory();
+    }
+
     public function criarImovel(Request $request)
     {
         $imoveisData = $request->input('imoveis');
@@ -37,5 +45,7 @@ class Imovel extends Controller
 
             array_push($imoveis, $imovel);
         }
+
+        $this->imovelFactory->salvarImovel($imoveis);
     }
 }
