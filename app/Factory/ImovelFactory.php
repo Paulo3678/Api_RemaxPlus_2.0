@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class ImovelFactory
 {
-    public function salvarImovel(array $imoveis)
+    public function createImovel(array $imoveis)
     {
         DB::beginTransaction();
 
@@ -36,5 +36,15 @@ class ImovelFactory
         }
 
         DB::commit();
+    }
+
+    public function removeImovel(int $imovelId)
+    {
+        try {
+            DB::delete("DELETE FROM `remaxplus`.`Imovel` WHERE (`Id` = {$imovelId});");
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 }

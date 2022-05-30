@@ -36,6 +36,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     // DELETE
     $router->delete("/usuario/delete", "Usuario@excluirUsuario");
     $router->delete("/corretor/delete", "Corretor@excluirCorretor");
+    $router->delete("/imovel/delete", "Imovel@excluirImovel");
 
     // PUT
     $router->put("/usuario/atualizar", "Usuario@atualizarUsuario");
