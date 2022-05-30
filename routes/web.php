@@ -31,7 +31,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     // POST
     $router->post('/usuario/cadastrar', "Usuario@cadastrarUsuario");
     $router->post('/corretor/criar', 'Corretor@criarCorretor');
-
+    $router->post('/imovel/adicionar', 'Imovel@criarImovel');
 
     // DELETE
     $router->delete("/usuario/delete", "Usuario@excluirUsuario");

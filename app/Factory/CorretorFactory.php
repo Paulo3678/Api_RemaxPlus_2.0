@@ -9,8 +9,8 @@ class CorretorFactory
 {
     public function createCorretor(CorretorModel $corretor)
     {
-        $usuarioInserido = DB::insert("INSERT INTO Corretor (Id_Usuario, Nome_Corretor, Email_Corretor, Creci, Whatsapp)
-            VALUES ('{$corretor->getIdUsuario()}', '{$corretor->getNome()}', '{$corretor->getEmail()}', '{$corretor->getCreci()}', '{$corretor->getWhatsapp()}');
+        $usuarioInserido = DB::insert("INSERT INTO Corretor (Id_Usuario, Nome_Corretor, Email_Corretor, Creci, Whatsapp, Foto_Corretor)
+            VALUES ('{$corretor->getIdUsuario()}', '{$corretor->getNome()}', '{$corretor->getEmail()}', '{$corretor->getCreci()}', '{$corretor->getWhatsapp()}', '{$corretor->getFoto()}');
         ");
 
         return $usuarioInserido;
@@ -49,7 +49,8 @@ class CorretorFactory
     public function updateCorretor(CorretorModel $corretorAtualizado)
     {
         $resultadoAtualizacao = DB::update("UPDATE Corretor 
-        SET Nome_Corretor='{$corretorAtualizado->getNome()}', Email_Corretor='{$corretorAtualizado->getEmail()}', Creci='{$corretorAtualizado->getCreci()}', Whatsapp='{$corretorAtualizado->getWhatsapp()}';");
+        SET Nome_Corretor='{$corretorAtualizado->getNome()}', Email_Corretor='{$corretorAtualizado->getEmail()}', 
+        Creci='{$corretorAtualizado->getCreci()}', Whatsapp='{$corretorAtualizado->getWhatsapp()}', Foto_Corretor='{$corretorAtualizado->getFoto()}';");
 
         return $resultadoAtualizacao;
     }

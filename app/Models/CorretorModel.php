@@ -4,7 +4,7 @@ namespace App\Models;
 
 class CorretorModel
 {
-    private $id, $idUsuario, $nome, $email, $creci, $whatsapp;
+    private $id, $idUsuario, $nome, $email, $creci, $whatsapp, $foto;
 
     public function getWhatsapp()
     {
@@ -69,6 +69,18 @@ class CorretorModel
     public function setCreci($creci)
     {
         $this->creci = $creci;
+        return $this;
+    }
+
+    public function getFoto()
+    {
+        return $this->foto;
+    }
+
+    public function setFoto($foto)
+    {
+        $this->foto = $foto;
+
         return $this;
     }
 }

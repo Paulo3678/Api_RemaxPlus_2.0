@@ -33,13 +33,14 @@ class Corretor extends Controller
         }
         $dadosToken = $this->buscarToken($cabecalho);
 
-        $nome       = $request->input("nome");
-        $email      = $request->input("email");
-        $creci      = $request->input("creci");
-        $whatsapp   = $request->input("whatsapp");
-
-        if (is_null($nome) || is_null($email) || is_null($creci) || is_null($whatsapp)) {
-            return response()->json("Favor informar nome, email, creci, e whatsapp do corretor!");
+        $nome           = $request->input("nome");
+        $email          = $request->input("email");
+        $creci          = $request->input("creci");
+        $whatsapp       = $request->input("whatsapp");
+        $fotoCorretor   = $request->input("foto_corretor");
+        
+        if (is_null($nome) || is_null($email) || is_null($creci) || is_null($whatsapp) || is_null($fotoCorretor)) {
+            return response()->json("Favor informar nome, email, creci,fotoCorretor e whatsapp do corretor!");
         }
 
         $idUsuario  = $dadosToken->usuario_id;
@@ -48,7 +49,8 @@ class Corretor extends Controller
             ->setEmail($email)
             ->setCreci($creci)
             ->setWhatsapp($whatsapp)
-            ->setIdUsuario($idUsuario);
+            ->setIdUsuario($idUsuario)
+            ->setFoto($fotoCorretor);
 
         $corretorCriado = $this->corretorFactory->createCorretor($corretor);
 
@@ -109,6 +111,7 @@ class Corretor extends Controller
             "email" => $corretor->getEmail(),
             "creci" => $corretor->getCreci(),
             "whatsapp" => $corretor->getWhatsapp(),
+            "foto_corretor" => $corretor->getFoto()
         ], 200);
     }
 
@@ -145,14 +148,15 @@ class Corretor extends Controller
             return response()->json("Opss... Esta página é exclusiva para usuarios, favor deixe que eles resolvam.", 403);
         }
 
-        $corretorId  = $request->input("corretorId");
-        $nome       = $request->input("nome");
-        $email      = $request->input("email");
-        $creci      = $request->input("creci");
-        $whatsapp   = $request->input("whatsapp");
+        $corretorId     = $request->input("corretorId");
+        $nome           = $request->input("nome");
+        $email          = $request->input("email");
+        $creci          = $request->input("creci");
+        $whatsapp       = $request->input("whatsapp");
+        $fotoCorretor   = $request->input("foto_corretor");
 
-        if (is_null($corretorId) || is_null($nome) || is_null($email) || is_null($creci) || is_null($whatsapp)) {
-            return response()->json("Favor informar corretorId, nome, email, creci e whatsapp", 403);
+        if (is_null($corretorId) || is_null($nome) || is_null($email) || is_null($creci) || is_null($whatsapp) || is_null($fotoCorretor)) {
+            return response()->json("Favor informar corretorId, nome, email, creci, foto_corretor e whatsapp", 403);
         }
 
         $corretorAtualizado = new CorretorModel();
@@ -160,8 +164,8 @@ class Corretor extends Controller
             ->setNome($nome)
             ->setEmail($email)
             ->setCreci($creci)
-            ->setWhatsapp($whatsapp);
-
+            ->setWhatsapp($whatsapp)
+            ->setFoto($fotoCorretor);
 
         $resultadoAtualizacao = $this->corretorFactory->updateCorretor($corretorAtualizado);
 
