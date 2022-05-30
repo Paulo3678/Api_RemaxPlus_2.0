@@ -200,13 +200,6 @@ class Imovel extends Controller
         return response()->json("Imóvel atualizado com sucesso", 200);
     }
 
-    public function atualizarImagemCapaImovel(Request $request)
-    {
-        if(is_null($request->input('novaImagem')) || is_null($request->input('imovelId'))){
-            return response()->json("É preciso informar a novaImagem e o imovelId", 404);
-        }
-    }
-
     private function buscarToken($cabecalho)
     {
         $token = str_replace("Bearer ", "", $cabecalho);

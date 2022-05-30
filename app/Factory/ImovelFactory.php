@@ -33,6 +33,7 @@ class ImovelFactory
                 foreach ($imovel->getImagens() as $imagem) {
                     DB::table("Imagem")->insert([
                         "Id_Imovel" => $idImovelInserido,
+                        "Usuario_Id" => $usuarioId,
                         "Caminho_Imagem" => $imagem
                     ]);
                 }

@@ -48,10 +48,12 @@ CREATE TABLE `Imovel` (
 CREATE TABLE `Imagem` (
   `Id_Imagem` int NOT NULL AUTO_INCREMENT,
   `Id_Imovel` int NOT NULL,
+  `Usuario_Id` int NOT NULL,
   `Caminho_Imagem` text NOT NULL,
   PRIMARY KEY (`Id_Imagem`),
   KEY `Id_Imovel` (`Id_Imovel`),
-  CONSTRAINT `Imagem_ibfk_1` FOREIGN KEY (`Id_Imovel`) REFERENCES `Imovel` (`Id`) ON DELETE CASCADE
+  FOREIGN KEY (`Id_Imovel`) REFERENCES `Imovel` (`Id`) ON DELETE CASCADE,
+  FOREIGN KEY (`Usuario_Id`) REFERENCES `Usuario` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `Imovel_Lead` (
