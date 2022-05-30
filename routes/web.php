@@ -27,7 +27,10 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->get('/usuario/usuario/{usuarioId}', 'Usuario@buscarDadosUsuario');
     $router->get('/corretor/corretores', 'Corretor@buscarCorretores');
     $router->get('/corretor/corretor/{idCorretorParaBuscar}', 'Corretor@buscarCorretor');
-
+    $router->get('/imovel/imoveis', 'Imovel@buscarImoveis');
+    $router->get('/imovel/imovel/{idImovel}', 'Imovel@buscarImovel');
+    $router->get('/imovel/corretor/buscar', 'Imovel@buscarImovelCorretor');
+    
     // POST
     $router->post('/usuario/cadastrar', "Usuario@cadastrarUsuario");
     $router->post('/corretor/criar', 'Corretor@criarCorretor');
@@ -42,4 +45,5 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->put("/usuario/atualizar", "Usuario@atualizarUsuario");
     $router->put("/usuario/atualizar/senha", "Usuario@atualizarSenha");
     $router->put("/corretor/atualizar", "Corretor@atualizarCorretor");
+    $router->put("/imovel/atualizar", 'Imovel@atualizarDadosImovel');
 });

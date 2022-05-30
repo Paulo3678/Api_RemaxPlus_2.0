@@ -4,11 +4,13 @@ namespace App\Models;
 
 class ImovelModel
 {
-    private $corretorId, $titulo, $tituloSlug,
-        $descricao, $situacao, $tamanho,
-        $preco, $numeroQuartos, $numeroBanheiros, $numeroVagas, $numerosSuites, $imagens;
+    private $id, $corretorId, $titulo, $tituloSlug, $imagemCapa,
+        $descricao, $situacao, $tamanho, $usuarioId,
+        $preco, $numeroQuartos, $numeroBanheiros, $numeroVagas, 
+        $numerosSuites, $imagens;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->imagens = array();
     }
 
@@ -163,5 +165,42 @@ class ImovelModel
 
         // -- Returns the slug
         return strtolower(strtr($string, $table));
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+
+    public function getUsuarioId()
+    {
+        return $this->usuarioId;
+    }
+
+    public function setUsuarioId($usuarioId)
+    {
+        $this->usuarioId = $usuarioId;
+
+        return $this;
+    }
+
+
+    public function getImagemCapa()
+    {
+        return $this->imagemCapa;
+    }
+
+    public function setImagemCapa($imagemCapa)
+    {
+        $this->imagemCapa = $imagemCapa;
+        return $this;
     }
 }

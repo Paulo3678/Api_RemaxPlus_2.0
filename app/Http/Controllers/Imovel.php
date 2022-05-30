@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\CorretorFactory;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use App\Models\ImovelModel;
@@ -13,10 +14,12 @@ class Imovel extends Controller
 {
 
     private $imovelFactory;
+    private $corretorFactory;
 
     public function __construct()
     {
         $this->imovelFactory = new ImovelFactory();
+        $this->corretorFactory = new CorretorFactory();
     }
 
     public function criarImovel(Request $request)
@@ -26,6 +29,7 @@ class Imovel extends Controller
         if (is_null($imoveisData)) {
             return response()->json("Favor, informar valores válidos", 403);
         }
+        $usuarioId = $this->buscarToken($request->header("Authorization"))->usuario_id;
 
         $imoveis = array();
 
@@ -43,6 +47,7 @@ class Imovel extends Controller
             $imovel->setCorretorId($imovelData['corretorId'])
                 ->setTitulo($imovelData['titulo'])
                 ->setDescricao($imovelData['descricao'])
+                ->setImagemCapa($imovelData['imagens'][0])
                 ->setSituacao($imovelData['situacao'])
                 ->setTamanho($imovelData['tamanho'])
                 ->setPreco($imovelData['preco'])
@@ -58,7 +63,7 @@ class Imovel extends Controller
             array_push($imoveis, $imovel);
         }
 
-        $resultadoSalvamento = $this->imovelFactory->createImovel($imoveis);
+        $resultadoSalvamento = $this->imovelFactory->createImovel($imoveis, $usuarioId);
         if (!$resultadoSalvamento) {
             return response()->json("Erro ao salvar imóvel. Tente novamente mais tarde!", 503);
         }
@@ -71,27 +76,135 @@ class Imovel extends Controller
         $cabecalho = $request->header("Authorization");
         $token = $this->buscarToken($cabecalho);
 
-        $usuarioIdToken = $token->usuario_id; 
+        $usuarioIdToken = $token->usuario_id;
 
         $imovelParaExcluir = $request->input("idImovel");
 
-        if(is_null($imovelParaExcluir)){
+        if (is_null($imovelParaExcluir)) {
             return response()->json("Favor informar idImovel que será excluido.", 404);
         }
+        $imovel     = $this->imovelFactory->getImovel($imovelParaExcluir);
+        $usuarioId  = $imovel['Usuario_ID'];
 
-        if($this->imovelFactory->getImovel($imovelParaExcluir)->getUsuarioId() !== $usuarioIdToken){
+        if (!$imovel) {
+            return response()->json("Imóvel não encontrado, verifique as credencias e tente novamente mais tarde.", 500);
+        }
+
+        if ($usuarioId !== $usuarioIdToken) {
             return response()->json("Opss.. esse imóvel não pertence a esse usuario.", 404);
         }
 
-
         $resultadoExclusao = $this->imovelFactory->removeImovel($imovelParaExcluir);
 
-        if(!$resultadoExclusao){
+        if (!$resultadoExclusao) {
             return response()->json("Erro ao remover imóvel, verifique os campos e tente novamente mais tarde", 500);
         }
 
         return response()->json("Imóvel removido com sucesso", 200);
+    }
 
+    public function buscarImoveis(Request $request)
+    {
+        $cabecalho = $request->header("Authorization");
+        $token = $this->buscarToken($cabecalho);
+
+
+        $imoveis = $this->imovelFactory->getImoveis($token->usuario_id);
+        if (!$imoveis) {
+            return response()->json("Erro ao buscar imóveis, tente novamente mais tarde.", 404);
+        }
+
+        return response()->json($imoveis, 200);
+    }
+
+    public function buscarImovel(Request $request, int $idImovel)
+    {
+        $cabecalho  = $request->header("Authorization");
+        $token      = $this->buscarToken($cabecalho);
+
+        $imovel = $this->imovelFactory->getImovel($idImovel);
+
+        if ($imovel['Usuario_ID'] !== $token->usuario_id) {
+            return response()->json("Opss... Esse imóvel não pertence a esse usuário.", 404);
+        }
+
+        return $imovel;
+    }
+
+    public function buscarImovelCorretor(Request $request)
+    {
+        if(is_null($request->input('corretorId'))){
+            return response()->json("Favor informar o corretorId", 404);
+        }
+
+        $cabecalho      = $request->header("Authorization");
+        $token          = $this->buscarToken($cabecalho);
+        $corretorId     = $request->input('corretorId');
+        $resultadoBusca = $this->imovelFactory->getCorretorImoveis($corretorId, $token->usuario_id);
+
+        if(!$resultadoBusca){
+            return response()->json("Erro ao buscar imóveis, verifique as credenciais e tente novamente mais tarde", 404);
+        }   
+
+        return response()->json($resultadoBusca, 200);
+
+    }
+
+    public function atualizarDadosImovel(Request $request)
+    {
+
+        if (
+            is_null($request->input('corretorId')) || is_null($request->input('titulo')) || is_null($request->input('descricao')) || is_null($request->input('situacao')) ||
+            is_null($request->input('tamanho')) || is_null($request->input('preco')) || is_null($request->input('numeroBanheiros')) || is_null($request->input('numeroVagas')) ||
+            is_null($request->input('numeroSuites')) || is_null($request->input('numeroQuartos')) || is_null($request->input('imovelId'))
+        ) {
+            return response()->json("Nem todos os dados foram encontrados, favor informar corretorId, titulo, descricao, situacao, tamanho, preco, numeroBanheiros, numeroVagas, numeroSuites, numeroQuartos e imovelId", 406);
+        }
+        var_dump(is_null($request->input('imovelId')));
+
+        $cabecalho = $request->header("Authorization");
+        $token = $this->buscarToken($cabecalho);
+
+        $novoImovel = new ImovelModel();
+
+        $imovelId = $request->input("imovelId");
+        $imovelAntigo = $this->imovelFactory->getImovel($imovelId);
+
+        if (!$imovelAntigo) {
+            return response()->json("Erro ao encontrar imovel, verifique as credenciais e tente novamente mais tarde.", 500);
+        }
+
+
+        $novoImovel->setCorretorId($request->input('corretorId'))
+            ->setTitulo($request->input('titulo'))
+            ->setUsuarioId($token->usuario_id)
+            ->setDescricao($request->input('descricao'))
+            ->setSituacao($request->input('situacao'))
+            ->setTamanho($request->input('tamanho'))
+            ->setPreco($request->input('preco'))
+            ->setNumeroBanheiros($request->input('numeroBanheiros'))
+            ->setNumeroVagas($request->input('numeroVagas'))
+            ->setNumerosSuites($request->input('numeroSuites'))
+            ->setNumeroQuartos($request->input('numeroQuartos'));
+
+        if ($token->usuario_id !== $imovelAntigo['Usuario_ID']) {
+            return response()->json("Opss... Esso imóvel não pertence a esse usuario");
+        }
+
+        $resultadoAtualizacao = $this->imovelFactory->updateImovel($novoImovel, $imovelId);
+
+        if (!$resultadoAtualizacao) {
+            return response()->json("Erro ao atualizar imóvel, tente novamente mais tarde", 500);
+        }
+
+        return response()->json("Imóvel atualizado com sucesso", 200);
+    }
+
+    public function atualizarImagemCapaImovel(Request $request)
+    {
+        if(is_null($request->input('novaImagem')) || is_null($request->input('imovelId'))){
+            return response()->json("É preciso informar a novaImagem e o imovelId", 404);
+        }
     }
 
     private function buscarToken($cabecalho)

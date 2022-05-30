@@ -24,36 +24,45 @@ class CorretorFactory
 
     public function getCorretor(int $corretorId)
     {
-        $dadosCorretor = DB::select("SELECT * FROM Corretor WHERE Id={$corretorId};");
-        $corretor = new CorretorModel();
+        try {
+            $dadosCorretor = DB::select("SELECT * FROM Corretor WHERE Id={$corretorId};");
+            $corretor = new CorretorModel();
 
-        if(!$dadosCorretor){
+            if (!$dadosCorretor) {
+                return false;
+            }
+
+            $corretor->setNome($dadosCorretor[0]->Nome_Corretor)
+                ->setIdUsuario($dadosCorretor[0]->Id_Usuario)
+                ->setId($dadosCorretor[0]->Id)
+                ->setEmail($dadosCorretor[0]->Email_Corretor)
+                ->setCreci($dadosCorretor[0]->Creci)
+                ->setWhatsapp($dadosCorretor[0]->Whatsapp);
+            return $corretor;
+        } catch (\Throwable $e) {
             return false;
         }
-
-        $corretor->setNome($dadosCorretor[0]->Nome_Corretor)
-            ->setIdUsuario($dadosCorretor[0]->Id_Usuario)
-            ->setId($dadosCorretor[0]->Id)
-            ->setEmail($dadosCorretor[0]->Email_Corretor)
-            ->setCreci($dadosCorretor[0]->Creci)
-            ->setWhatsapp($dadosCorretor[0]->Whatsapp);
-        return $corretor;
     }
 
     public function removeCorretor(int $corretorId)
     {
-        $corretorRemovido = DB::delete("DELETE FROM Corretor WHERE Id={$corretorId}");
-        return $corretorRemovido;
+        try {
+            $corretorRemovido = DB::delete("DELETE FROM Corretor WHERE Id={$corretorId}");
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     public function updateCorretor(CorretorModel $corretorAtualizado)
     {
-        $resultadoAtualizacao = DB::update("UPDATE Corretor 
+        try {
+            $resultadoAtualizacao = DB::update("UPDATE Corretor 
         SET Nome_Corretor='{$corretorAtualizado->getNome()}', Email_Corretor='{$corretorAtualizado->getEmail()}', 
         Creci='{$corretorAtualizado->getCreci()}', Whatsapp='{$corretorAtualizado->getWhatsapp()}', Foto_Corretor='{$corretorAtualizado->getFoto()}';");
-
-        return $resultadoAtualizacao;
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
-
-
 }

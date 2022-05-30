@@ -58,7 +58,7 @@ class Corretor extends Controller
             return response()->json("Erro ao criar corretor, tente novamente mais tarde!", 403);
         }
 
-        return response()->json("Usuario criado com sucesso", 200);
+        return response()->json("Corretor criado com sucesso", 200);
     }
 
     public function buscarCorretores(Request $request)
