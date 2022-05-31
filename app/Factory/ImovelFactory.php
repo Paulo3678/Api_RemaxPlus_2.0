@@ -114,6 +114,34 @@ class ImovelFactory
         }
     }
 
+    public function getPaginatedImoveis(int $usuarioId, int $pagina)
+    {
+        try {
+            $pagina = $pagina === 0 ? 1 : $pagina;
+            $todos_imoveis = DB::select("SELECT * FROM Imovel");
+            // Contar o total de imoveis
+            $total_imoveis = count($todos_imoveis);
+
+            // Total de imoveis por pagina
+            $imoveis_por_pagina = 6;
+
+            // Calcular o numero de páginas necessárias para apresentar os cursos
+            $numero_paginas = ceil($total_imoveis / $imoveis_por_pagina);
+
+            // Calcular o inicio da visualização
+            $inicio = ($imoveis_por_pagina * $pagina) - $imoveis_por_pagina;
+
+            // Buscando os imoveis
+            $result = DB::select("SELECT * FROM Imovel WHERE Usuario_ID={$usuarioId} LIMIT {$inicio}, {$imoveis_por_pagina}");
+            return [
+                "total_paginas" => $numero_paginas,
+                "imoveis"       => $result
+            ];
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
     public function updateImovel(ImovelModel $imovel, int $imovelId)
     {
         try {

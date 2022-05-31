@@ -108,7 +108,6 @@ class Imovel extends Controller
         $cabecalho = $request->header("Authorization");
         $token = $this->buscarToken($cabecalho);
 
-
         $imoveis = $this->imovelFactory->getImoveis($token->usuario_id);
         if (!$imoveis) {
             return response()->json("Erro ao buscar imóveis, tente novamente mais tarde.", 404);
@@ -133,7 +132,7 @@ class Imovel extends Controller
 
     public function buscarImovelCorretor(Request $request)
     {
-        if(is_null($request->input('corretorId'))){
+        if (is_null($request->input('corretorId'))) {
             return response()->json("Favor informar o corretorId", 404);
         }
 
@@ -142,12 +141,19 @@ class Imovel extends Controller
         $corretorId     = $request->input('corretorId');
         $resultadoBusca = $this->imovelFactory->getCorretorImoveis($corretorId, $token->usuario_id);
 
-        if(!$resultadoBusca){
+        if (!$resultadoBusca) {
             return response()->json("Erro ao buscar imóveis, verifique as credenciais e tente novamente mais tarde", 404);
-        }   
+        }
 
         return response()->json($resultadoBusca, 200);
+    }
 
+    public function buscarImoveisPorPagina(Request $request, int $pagina)
+    {
+        $cabecalho = $request->header("Authorization");
+        $token = $this->buscarToken($cabecalho);
+
+        return response()->json($this->imovelFactory->getPaginatedImoveis($token->usuario_id, $pagina), 200);
     }
 
     public function atualizarDadosImovel(Request $request)

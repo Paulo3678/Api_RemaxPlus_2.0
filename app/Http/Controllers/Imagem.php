@@ -110,7 +110,6 @@ class Imagem extends Controller
         return response()->json($imagens, 200);
     }
 
-
     private function buscarToken($cabecalho)
     {
         $token = str_replace("Bearer ", "", $cabecalho);

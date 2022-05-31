@@ -1,4 +1,3 @@
-
 CREATE TABLE `Usuario` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `Nome` varchar(50) NOT NULL,
@@ -6,8 +5,7 @@ CREATE TABLE `Usuario` (
   `Senha` text NOT NULL,
   `Hierarquia` varchar(10) NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+) ENGINE = InnoDB AUTO_INCREMENT = 9 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE `Corretor` (
   `Id` int NOT NULL AUTO_INCREMENT,
@@ -20,9 +18,7 @@ CREATE TABLE `Corretor` (
   PRIMARY KEY (`Id`),
   KEY `Id_Usuario` (`Id_Usuario`),
   CONSTRAINT `Corretor_ibfk_1` FOREIGN KEY (`Id_Usuario`) REFERENCES `Usuario` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
+) ENGINE = InnoDB AUTO_INCREMENT = 10 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE `Imovel` (
   `Id` int NOT NULL AUTO_INCREMENT,
@@ -41,9 +37,10 @@ CREATE TABLE `Imovel` (
   `Numero_Suites` int NOT NULL,
   PRIMARY KEY (`Id`),
   KEY `Corretor_Id` (`Corretor_Id`),
+  KEY `Imovel_ibfk_2` (`Usuario_ID`),
   CONSTRAINT `Imovel_ibfk_1` FOREIGN KEY (`Corretor_Id`) REFERENCES `Corretor` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `Imovel_ibfk_2` FOREIGN KEY (`Usuario_ID`) REFERENCES `Usuario` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE = InnoDB AUTO_INCREMENT = 45 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE `Imagem` (
   `Id_Imagem` int NOT NULL AUTO_INCREMENT,
@@ -52,19 +49,22 @@ CREATE TABLE `Imagem` (
   `Caminho_Imagem` text NOT NULL,
   PRIMARY KEY (`Id_Imagem`),
   KEY `Id_Imovel` (`Id_Imovel`),
-  FOREIGN KEY (`Id_Imovel`) REFERENCES `Imovel` (`Id`) ON DELETE CASCADE,
-  FOREIGN KEY (`Usuario_Id`) REFERENCES `Usuario` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `Usuario_Id` (`Usuario_Id`),
+  CONSTRAINT `Imagem_ibfk_1` FOREIGN KEY (`Id_Imovel`) REFERENCES `Imovel` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `Imagem_ibfk_2` FOREIGN KEY (`Usuario_Id`) REFERENCES `Usuario` (`Id`) ON DELETE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 48 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE `Imovel_Lead` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `Id_Imovel` int NOT NULL,
+  `Usuario_Id` int NOT NULL,
   `Data_Lead` varchar(30) NOT NULL,
   `Horario_Lead` varchar(30) NOT NULL,
   `Email_Cliente` text NOT NULL,
   `Telefone_Cliente` varchar(30) NOT NULL,
+  `Cidade_Cliente` VARCHAR(75),
   PRIMARY KEY (`Id`),
   KEY `Id_Imovel` (`Id_Imovel`),
-  CONSTRAINT `Imovel_Lead_ibfk_1` FOREIGN KEY (`Id_Imovel`) REFERENCES `Imovel` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+  FOREIGN KEY (`Id_Imovel`) REFERENCES `Imovel` (`Id`) ON DELETE CASCADE,
+  FOREIGN KEY (`Usuario_Id`) REFERENCES `Usuario` (`Id`) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
