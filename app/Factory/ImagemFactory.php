@@ -27,7 +27,7 @@ class ImagemFactory
         }
     }
 
-    public function getImovelImagens(int $idNovaImagemCapa, int $usuarioId, int $idImovel)
+    public function getImovelImagens(int $usuarioId, int $idImovel)
     {
         try {
             $resultado = DB::select("SELECT * FROM Imagem WHERE Usuario_Id={$usuarioId} AND Id_Imovel={$idImovel};");
@@ -36,7 +36,6 @@ class ImagemFactory
             return false;
         }
     }
-
 
     public function updateImagemCapa(int $idImovel, string $caminhoNovaImagem)
     {

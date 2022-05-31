@@ -30,7 +30,8 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->get('/imovel/imoveis', 'Imovel@buscarImoveis');
     $router->get('/imovel/imovel/{idImovel}', 'Imovel@buscarImovel');
     $router->get('/imovel/corretor/buscar', 'Imovel@buscarImovelCorretor');
-    $router->get('/imovel/imagens/buscar/{imovelId}', 'Imovel@buscarImovelCorretor');
+    $router->get('/imovel/imagens/buscar/{imovelId}', 'Imagem@buscarImagensImovel');
+
 
     // POST
     $router->post('/usuario/cadastrar', "Usuario@cadastrarUsuario");

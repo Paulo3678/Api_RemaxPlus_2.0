@@ -89,12 +89,27 @@ class Imagem extends Controller
         $token              = $this->buscarToken($cabecalho);
 
         $resultado = $this->imagemFactory->removeImagens($idImovel, $imagemParaExcluir, $token->usuario_id);
-        if(!$resultado){
+        if (!$resultado) {
             return response()->json("Erro ao excluir imagem, verifique as credenciais e tente novamente mais tarde.", 500);
         }
 
         return response()->json("Imagem removida com sucesso");
     }
+
+    public function buscarImagensImovel(Request $request, int $imovelId)
+    {
+        $imovelId   = filter_var($imovelId, FILTER_VALIDATE_INT);
+        $cabecalho  = $request->header("Authorization");
+        $token      = $this->buscarToken($cabecalho);
+        $imagens    = $this->imagemFactory->getImovelImagens($token->usuario_id, $imovelId);
+
+        if (!$imagens) {
+            return response()->json("Erro ao buscar imagens, verifique as credenciais e tente novamente mais tarde.", 500);
+        }
+
+        return response()->json($imagens, 200);
+    }
+
 
     private function buscarToken($cabecalho)
     {
