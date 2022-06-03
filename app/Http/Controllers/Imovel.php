@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use App\Factory\ImovelFactory;
 use App\Http\Controllers\Controller;
 
+use function Ramsey\Uuid\v1;
+
 class Imovel extends Controller
 {
 
@@ -29,6 +31,7 @@ class Imovel extends Controller
         if (is_null($imoveisData)) {
             return response()->json("Favor, informar valores válidos", 403);
         }
+
         $usuarioId = $this->buscarToken($request->header("Authorization"))->usuario_id;
 
         $imoveis = array();
@@ -41,6 +44,13 @@ class Imovel extends Controller
                 !isset($imovelData['numeroSuites']) || !isset($imovelData['numeroQuartos']) || !isset($imovelData['imagens'])
             ) {
                 return response()->json("Nem todos os dados foram encontrados, favor informar corretorId, titulo, descricao, situacao, tamanho, preco, numeroBanheiros, numeroVagas, numeroSuites, numeroQuartos, imagens", 406);
+            }
+
+            $corretores = $this->corretorFactory->getCorretores($usuarioId);
+            foreach ($corretores as $corretor) {
+                if($corretor->Id !== $imovelData['corretorId']){
+                    return response()->json("Alguns dos corretores não pertencem a esse usuário. Favor informe apenas corretores válidos!", 404);
+                }
             }
 
             $imovel = new ImovelModel();
@@ -63,12 +73,12 @@ class Imovel extends Controller
             array_push($imoveis, $imovel);
         }
 
-        $resultadoSalvamento = $this->imovelFactory->createImovel($imoveis, $usuarioId);
-        if (!$resultadoSalvamento) {
-            return response()->json("Erro ao salvar imóvel. Tente novamente mais tarde!", 503);
-        }
+            $resultadoSalvamento = $this->imovelFactory->createImovel($imoveis, $usuarioId);
+            if (!$resultadoSalvamento) {
+                return response()->json("Erro ao salvar imóvel. Tente novamente mais tarde!", 503);
+            }
 
-        return response()->json("Imóvel(is) salvo(s) com sucesso!", 200);
+            return response()->json("Imóvel(is) salvo(s) com sucesso!", 200);
     }
 
     public function excluirImovel(Request $request)

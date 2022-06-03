@@ -9,17 +9,25 @@ class CorretorFactory
 {
     public function createCorretor(CorretorModel $corretor)
     {
-        $usuarioInserido = DB::insert("INSERT INTO Corretor (Id_Usuario, Nome_Corretor, Email_Corretor, Creci, Whatsapp, Foto_Corretor)
-            VALUES ('{$corretor->getIdUsuario()}', '{$corretor->getNome()}', '{$corretor->getEmail()}', '{$corretor->getCreci()}', '{$corretor->getWhatsapp()}', '{$corretor->getFoto()}');
-        ");
+        try {
+            $usuarioInserido = DB::insert("INSERT INTO Corretor (Id_Usuario, Nome_Corretor, Email_Corretor, Creci, Whatsapp, Foto_Corretor)
+                VALUES ('{$corretor->getIdUsuario()}', '{$corretor->getNome()}', '{$corretor->getEmail()}', '{$corretor->getCreci()}', '{$corretor->getWhatsapp()}', '{$corretor->getFoto()}');
+            ");
 
-        return $usuarioInserido;
+            return $usuarioInserido;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     public function getCorretores(int $usuarioId)
     {
-        $corretores = DB::select("SELECT * FROM Corretor WHERE Id_Usuario={$usuarioId};");
-        return $corretores;
+        try {
+            $corretores = DB::select("SELECT * FROM Corretor WHERE Id_Usuario={$usuarioId};");
+            return $corretores;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     public function getCorretor(int $corretorId)
