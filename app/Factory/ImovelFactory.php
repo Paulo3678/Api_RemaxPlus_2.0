@@ -41,8 +41,10 @@ class ImovelFactory
             DB::commit();
             return true;
         } catch (\Throwable $e) {
-            return false;
+            var_dump($e->getMessage());
+            // return false;
         }
+        
     }
 
     public function removeImovel(int $imovelId)
@@ -83,7 +85,7 @@ class ImovelFactory
 
                 array_push($imovel["Imagens"], [
                     "Id" => $dados->Id_Imagem,
-                    "Caminho_Imagem" => $dados->Id_Imagem
+                    "Caminho_Imagem" => $dados->Caminho_Imagem
                 ]);
             }
 
@@ -132,13 +134,15 @@ class ImovelFactory
             $inicio = ($imoveis_por_pagina * $pagina) - $imoveis_por_pagina;
 
             // Buscando os imoveis
-            $result = DB::select("SELECT * FROM Imovel WHERE Usuario_ID={$usuarioId} LIMIT {$inicio}, {$imoveis_por_pagina}");
+            $result = DB::select("SELECT * FROM Imovel INNER JOIN Corretor ON Corretor.Id_Corretor=Imovel.Corretor_Id WHERE Usuario_ID={$usuarioId} LIMIT {$inicio}, {$imoveis_por_pagina}");
+  
             return [
                 "total_paginas" => $numero_paginas,
                 "imoveis"       => $result
             ];
         } catch (\Throwable $e) {
-            return false;
+            var_dump($e->getMessage());
+            // return false;
         }
     }
 

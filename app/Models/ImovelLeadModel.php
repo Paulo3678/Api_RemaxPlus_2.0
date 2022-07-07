@@ -4,7 +4,7 @@ namespace App\Models;
 
 class ImovelLeadModel
 {
-    private $idImovel, $usuarioId, $dataLead, $horarioLead, $emailCliente, $telefoneCliente, $cidadeCliente;
+    private $idImovel, $usuarioId, $dataLead, $emailCliente, $telefoneCliente, $cidadeCliente, $urlLead, $corretorId, $mensagem;
 
     public function getIdImovel()
     {
@@ -39,16 +39,6 @@ class ImovelLeadModel
         return $this;
     }
 
-    public function getHorarioLead()
-    {
-        return $this->horarioLead;
-    }
-
-    public function setHorarioLead($horarioLead)
-    {
-        $this->horarioLead = $horarioLead;
-        return $this;
-    }
 
     public function getEmailCliente()
     {
@@ -80,6 +70,41 @@ class ImovelLeadModel
     public function setCidadeCliente($cidadeCliente)
     {
         $this->cidadeCliente = $cidadeCliente;
+        return $this;
+    }
+
+    public function getUrlLead()
+    {
+        return $this->urlLead;
+    }
+
+    public function setUrlLead($urlLead)
+    {
+        $this->urlLead = $urlLead;
+
+        return $this;
+    }
+
+    public function getMensagem()
+    {
+        return $this->mensagem;
+    }
+
+    public function setMensagem($mensagem)
+    {
+        $this->mensagem = $mensagem;
+
+        return $this;
+    }
+    public function getCorretorId()
+    {
+        return $this->corretorId;
+    }
+
+    public function setCorretorId($corretorId)
+    {
+        $this->corretorId = $corretorId;
+
         return $this;
     }
 }

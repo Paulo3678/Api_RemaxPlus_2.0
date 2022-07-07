@@ -47,12 +47,19 @@ class Imovel extends Controller
             }
 
             $corretores = $this->corretorFactory->getCorretores($usuarioId);
+
+
+            $corretorExiste = false;
+
             foreach ($corretores as $corretor) {
-                if($corretor->Id !== $imovelData['corretorId']){
-                    return response()->json("Alguns dos corretores não pertencem a esse usuário. Favor informe apenas corretores válidos!", 404);
+                if ($corretor->Id_Corretor == $imovelData['corretorId']) {
+                    $corretorExiste = true;
+                    
                 }
             }
-
+            if($corretorExiste === false){
+                return response()->json("Alguns dos corretores não pertencem a esse usuário. Favor informe apenas corretores válidos!", 404);
+            }
             $imovel = new ImovelModel();
             $imovel->setCorretorId($imovelData['corretorId'])
                 ->setTitulo($imovelData['titulo'])
@@ -73,12 +80,13 @@ class Imovel extends Controller
             array_push($imoveis, $imovel);
         }
 
-            $resultadoSalvamento = $this->imovelFactory->createImovel($imoveis, $usuarioId);
-            if (!$resultadoSalvamento) {
-                return response()->json("Erro ao salvar imóvel. Tente novamente mais tarde!", 503);
-            }
+        $resultadoSalvamento = $this->imovelFactory->createImovel($imoveis, $usuarioId);
+        
+        if (!$resultadoSalvamento) {
+            return response()->json("Erro ao salvar imóvel. Tente novamente mais tarde!", 503);
+        }
 
-            return response()->json("Imóvel(is) salvo(s) com sucesso!", 200);
+        return response()->json("Imóvel(is) salvo(s) com sucesso!", 200);
     }
 
     public function excluirImovel(Request $request)

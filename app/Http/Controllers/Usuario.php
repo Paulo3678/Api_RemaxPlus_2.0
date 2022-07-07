@@ -32,11 +32,17 @@ class Usuario extends Controller
         $email      = $request->input("email");
         $senha      = $request->input("senha");
         $hierarquia = $request->input("hierarquia");
+        $fotoPerfil = $request->input("fotoPerfil");
 
-        if (is_null($nome) || is_null($email) || is_null($senha) || is_null($hierarquia)) {
-            return response()->json(["Favor informar nome, email, senha e a hierarquia do usuario"]);
+        if (is_null($nome) || is_null($email) || is_null($senha) || is_null($hierarquia) || is_null($fotoPerfil)) {
+            return response()->json(["Favor informar nome, email, senham, fotoPerfil e a hierarquia do usuario"]);
         }
 
+        $buscaEmail = $this->usuarioFactory->getUsuario(["Email", $email]);
+        if($buscaEmail){
+            return response()->json(["Usuario já existe! Favor tente outro e-mail."]);
+        }
+     
         $senha  = password_hash($senha, PASSWORD_ARGON2I);
 
         if (!$hierarquia === "adm" && !$hierarquia === "com") {
@@ -47,7 +53,8 @@ class Usuario extends Controller
         $usuario->setNome($nome)
             ->setEmail($email)
             ->setSenha($senha)
-            ->setHierarquia($hierarquia);
+            ->setHierarquia($hierarquia)
+            ->setImagemPerfil($fotoPerfil);
 
 
         $retorno = $this->usuarioFactory->createUsuario($usuario);
@@ -83,6 +90,7 @@ class Usuario extends Controller
 
         return response()->json(["Usuário removido com sucesso!"], 200);
     }
+
 
     public function buscarTodosUsuarios(Request $request)
     {
@@ -170,48 +178,40 @@ class Usuario extends Controller
         return response()->json(["Senha atualizada com sucesso!"], 200);
     }
 
-    public function buscarDadosUsuario(Request $request, int $usuarioId)
+    public function buscarDadosUsuario(Request $request)
     {
         $cabecalhoHttp = $request->header("Authorization");
         $token = $this->buscarToken($cabecalhoHttp);
         $usuarioEhAdm = $this->validarAdm($token->usuario_id);
 
-        if ($usuarioEhAdm) {
-            $usuarioBusca   = $this->usuarioFactory->getUsuario(["id", $usuarioId]);
-
-            if (!$usuarioBusca) {
-                return response()->json("Usuario não encontrado, verifique as credenciais", 500);
-            }
-
-            $usuarioRetorno = [
-                "id"            => $usuarioBusca->getId(),
-                "nome"          => $usuarioBusca->getNome(),
-                "email"         => $usuarioBusca->getEmail(),
-                "senha"         => $usuarioBusca->getSenha(),
-                "hierarquia"    => $usuarioBusca->getHierarquia()
-            ];
-
-            return response()->json($usuarioRetorno, 200);
-        }
-
         $usuarioIdToken = $token->usuario_id;
+        $usuarioBusca   = $this->usuarioFactory->getUsuario(['id', $usuarioIdToken]);
 
-        if ($usuarioId !== $usuarioIdToken) {
-            return response()->json(["Hey hey, não tente fazer gracinhas!", 403]);
-        }
-
-        $usuarioBusca   = $this->usuarioFactory->getUsuario(['id', $usuarioId]);
         if (!$usuarioBusca) {
-            return response()->json("Usuario não encontrado, verifique as credenciais", 500);
+            return response()->json("Usuario não encontrado, verifique as credenciais e tente novamente.", 500);
         }
 
         $usuarioRetorno = [
             "id"    => $usuarioBusca->getId(),
             "nome"  => $usuarioBusca->getNome(),
-            "email" => $usuarioBusca->getEmail()
+            "email" => $usuarioBusca->getEmail(),
+            "hierarquia" => $usuarioBusca->getHierarquia()
         ];
 
         return response()->json($usuarioRetorno, 200);
+    }
+
+    public function verificarHierarquia(Request $request)
+    {
+        $cabecalho  = $request->header("Authorization");
+        $token      = $this->buscarToken($cabecalho);
+
+        $resultadoBusca = $this->usuarioFactory->getUsuarioHierarquia($token->usuario_id);
+        if (!$resultadoBusca) {
+            return response()->json("Usuario não encontrado, verifique as credenciais e tente novamente.", 500);
+        }
+
+        return response()->json($resultadoBusca, 200);
     }
 
     private function buscarToken($cabecalho)

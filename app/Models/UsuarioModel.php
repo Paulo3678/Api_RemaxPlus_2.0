@@ -4,7 +4,7 @@ namespace App\Models;
 
 class UsuarioModel
 {
-    private $id, $nome, $email, $senha, $hierarquia;
+    private $id, $nome, $email, $senha, $hierarquia, $imagemPerfil;
 
     public function getHierarquia()
     {
@@ -58,6 +58,18 @@ class UsuarioModel
     public function setEmail($email)
     {
         $this->email = $email;
+        return $this;
+    }
+
+    public function getImagemPerfil()
+    {
+        return $this->imagemPerfil;
+    }
+
+    public function setImagemPerfil($imagemPerfil)
+    {
+        $this->imagemPerfil = $imagemPerfil;
+
         return $this;
     }
 }

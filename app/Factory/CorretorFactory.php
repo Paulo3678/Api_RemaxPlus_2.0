@@ -33,7 +33,7 @@ class CorretorFactory
     public function getCorretor(int $corretorId)
     {
         try {
-            $dadosCorretor = DB::select("SELECT * FROM Corretor WHERE Id={$corretorId};");
+            $dadosCorretor = DB::select("SELECT * FROM Corretor WHERE Id_Corretor={$corretorId};");
             $corretor = new CorretorModel();
 
             if (!$dadosCorretor) {
@@ -55,7 +55,7 @@ class CorretorFactory
     public function removeCorretor(int $corretorId)
     {
         try {
-            $corretorRemovido = DB::delete("DELETE FROM Corretor WHERE Id={$corretorId}");
+            $corretorRemovido = DB::delete("DELETE FROM Corretor WHERE Id_Corretor={$corretorId}");
             return true;
         } catch (\Throwable $e) {
             return false;

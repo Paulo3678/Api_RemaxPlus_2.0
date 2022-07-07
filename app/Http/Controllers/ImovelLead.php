@@ -46,14 +46,51 @@ class ImovelLead extends Controller
 
         return $busca;
     }
+    public function buscarImoveisLeadsPaginado(Request $request, int $paginaLead)
+    {
+        $cabecalho  = $request->header("Authorization");
+        $token      = $this->buscarToken($cabecalho);
+        
+        if($paginaLead < 1){
+            $paginaLead = 1;
+        }
+
+        $busca  = $this->imovelLeadFactory->getPaginatedImoveisLeads($token->usuario_id, $paginaLead);
+      
+        if (!$busca) {
+            return response()->json("Erro ao buscar ImoveisLeads, verifique as credenciais e tente novamente mais tarde", 500);
+        }
+
+        return $busca;
+    }
+
+    public function buscarCorretorImoveisLeadsPaginado(Request $request, int $paginaLead, int $corretorId)
+    {
+        $cabecalho  = $request->header("Authorization");
+        $token      = $this->buscarToken($cabecalho);
+        
+        if($paginaLead < 1){
+            $paginaLead = 1;
+        }
+
+        $busca  = $this->imovelLeadFactory->getPaginatedCorretorImoveisLeads($token->usuario_id, $paginaLead, $corretorId);
+      
+        if (!$busca) {
+            return response()->json("Erro ao buscar ImoveisLeads, verifique as credenciais e tente novamente mais tarde", 500);
+        }
+
+        return $busca;
+    }
 
     public function criarImovelLead(Request $request)
     {
         if (
-            is_null($request->input("idImovel")) || is_null($request->input("dataLead")) || is_null($request->input("horarioLead")) ||
-            is_null($request->input("emailCliente")) || is_null($request->input("telefoneCliente")) || is_null($request->input("cidadeCliente"))
+            is_null($request->input("idImovel")) || is_null($request->input("dataLead")) ||
+            is_null($request->input("urlLead")) || is_null($request->input("emailCliente")) || 
+            is_null($request->input("telefoneCliente")) || is_null($request->input("cidadeCliente")) ||
+            is_null($request->input("mensagem")) || is_null($request->input("corretorId"))
         ) {
-            return response()->json("Favor informar idImovel, dataLead, horarioLead, emailCliente, telefoneCliente, cidadeCliente", 404);
+            return response()->json("Favor informar idImovel, dataLead, horarioLead, urlLead, emailCliente, telefoneCliente, cidadeCliente, corretorId, mensagem", 404);
         }
 
         $cabecalho  = $request->header("Authorization");
@@ -62,11 +99,13 @@ class ImovelLead extends Controller
         $imovelLead = new ImovelLeadModel();
         $imovelLead->setIdImovel($request->input("idImovel"))
             ->setUsuarioId($token->usuario_id)
-            ->setDataLead($this->validarDataLead($request->input("dataLead")))
-            ->setHorarioLead($this->validarHorarioLead($request->input("horarioLead")))
+            ->setDataLead($request->input("dataLead"))
             ->setEmailCliente($request->input("emailCliente"))
             ->setTelefoneCliente($this->validadarTelefone($request->input("telefoneCliente")))
-            ->setCidadeCliente($request->input("cidadeCliente"));
+            ->setCidadeCliente($request->input("cidadeCliente"))
+            ->setMensagem($request->input("mensagem"))
+            ->setCorretorId($request->input("corretorId"))
+            ->setUrlLead($request->input("urlLead"));
 
         $resultadoCreate = $this->imovelLeadFactory->createImovelLead($imovelLead);
 

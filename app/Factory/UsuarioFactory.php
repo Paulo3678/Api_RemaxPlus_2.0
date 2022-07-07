@@ -39,8 +39,8 @@ class UsuarioFactory
     public function createUsuario(UsuarioModel $usuario): bool
     {
         try {
-            $dadosInserios  =   DB::insert("INSERT INTO Usuario(Nome, Email, Senha, Hierarquia) 
-                VALUES ('{$usuario->getNome()}', '{$usuario->getEmail()}', '{$usuario->getSenha()}', '{$usuario->getHierarquia()}');
+            $dadosInserios  =   DB::insert("INSERT INTO Usuario(Nome, Email, Senha, Hierarquia, Imagem_perfil) 
+                VALUES ('{$usuario->getNome()}', '{$usuario->getEmail()}', '{$usuario->getSenha()}', '{$usuario->getHierarquia()}', '{$usuario->getImagemPerfil()}');
             ");
 
             if (!$dadosInserios) {
@@ -85,5 +85,15 @@ class UsuarioFactory
         }
 
         return $statusAtualizacao;
+    }
+
+    public function getUsuarioHierarquia(int $usuarioId)
+    {
+        try {
+            $resutladoBusca = DB::select("SELECT Hierarquia FROM Usuario WHERE Id={$usuarioId}");
+            return $resutladoBusca;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 }
