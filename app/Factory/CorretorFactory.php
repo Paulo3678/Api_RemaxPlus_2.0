@@ -42,13 +42,16 @@ class CorretorFactory
 
             $corretor->setNome($dadosCorretor[0]->Nome_Corretor)
                 ->setIdUsuario($dadosCorretor[0]->Id_Usuario)
-                ->setId($dadosCorretor[0]->Id)
+                ->setId($dadosCorretor[0]->Id_Corretor)
                 ->setEmail($dadosCorretor[0]->Email_Corretor)
                 ->setCreci($dadosCorretor[0]->Creci)
-                ->setWhatsapp($dadosCorretor[0]->Whatsapp);
+                ->setWhatsapp($dadosCorretor[0]->Whatsapp)
+                ->setFoto($dadosCorretor[0]->Foto_Corretor);
+
             return $corretor;
         } catch (\Throwable $e) {
             return false;
+            // echo $e->getMessage();
         }
     }
 
@@ -67,7 +70,7 @@ class CorretorFactory
         try {
             $resultadoAtualizacao = DB::update("UPDATE Corretor 
         SET Nome_Corretor='{$corretorAtualizado->getNome()}', Email_Corretor='{$corretorAtualizado->getEmail()}', 
-        Creci='{$corretorAtualizado->getCreci()}', Whatsapp='{$corretorAtualizado->getWhatsapp()}', Foto_Corretor='{$corretorAtualizado->getFoto()}';");
+        Creci='{$corretorAtualizado->getCreci()}', Whatsapp='{$corretorAtualizado->getWhatsapp()}', Foto_Corretor='{$corretorAtualizado->getFoto()}' WHERE Id_Corretor={$corretorAtualizado->getId()};");
             return true;
         } catch (\Throwable $e) {
             return false;

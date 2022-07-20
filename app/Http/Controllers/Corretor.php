@@ -73,13 +73,13 @@ class Corretor extends Controller
 
         $idUsuario = $dadosToken->usuario_id;
 
-        $usuarios = $this->corretorFactory->getCorretores($idUsuario);
+        $corretores = $this->corretorFactory->getCorretores($idUsuario);
 
-        if (!$usuarios) {
+        if ($corretores === false) {
             return response()->json("Erro ao buscar corretores, tente novamente mais tarde.", 500);
         }
 
-        return response()->json($usuarios, 200);
+        return response()->json($corretores, 200);
     }
 
     public function buscarCorretor(Request $request, int $idCorretorParaBuscar)
@@ -90,6 +90,7 @@ class Corretor extends Controller
         if ($usuarioEhAdm) {
             return response()->json("Opss... Esta página é exclusiva para usuarios, favor deixe que eles resolvam.", 403);
         }
+        
         $dadosToken = $this->buscarToken($cabecalho);
 
         $idUsuario = $dadosToken->usuario_id;

@@ -28,7 +28,8 @@ class UsuarioFactory
                 ->setNome($dados[0]->Nome)
                 ->setSenha($dados[0]->Senha)
                 ->setEmail($dados[0]->Email)
-                ->setHierarquia($dados[0]->Hierarquia);
+                ->setHierarquia($dados[0]->Hierarquia)
+                ->setImagemPerfil($dados[0]->Imagem_perfil);
 
             return $usuario;
         } catch (\Throwable $e) {
@@ -77,8 +78,8 @@ class UsuarioFactory
     {
         try {
             $statusAtualizacao = DB::update("UPDATE Usuario SET 
-            nome='{$usuario->getNome()}', email='{$usuario->getEmail()}', senha='{$usuario->getSenha()}', hierarquia='{$usuario->getHierarquia()}' 
-            WHERE id='$usuarioId';");
+            nome='{$usuario->getNome()}', email='{$usuario->getEmail()}', hierarquia='{$usuario->getHierarquia()}', Imagem_perfil='{$usuario->getImagemPerfil()}' 
+            WHERE Id='$usuarioId';");
             return true;
         } catch (\Throwable $e) {
             return false;

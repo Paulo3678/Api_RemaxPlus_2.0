@@ -111,21 +111,18 @@ class Usuario extends Controller
     {
         $cabecalhoHttp = $request->header("Authorization");
         $token = $this->buscarToken($cabecalhoHttp);
-        $usuarioEhAdm = $this->validarAdm($token->usuario_id);
 
-        if (!$usuarioEhAdm) {
-            return response()->json(["Opss... Essa página só é permitida para usuários administradores"], 403);
-        }
 
         $nome       = $request->input("nome");
         $email      = $request->input("email");
         $senha      = $request->input("senha");
         $hierarquia = $request->input("hierarquia");
         $usuarioId  = $request->input("usuarioId");
+        $imagemPerfil  = $request->input("imagemPerfil");
 
 
-        if (is_null($nome) || is_null($email) || is_null($senha) || is_null($hierarquia) || is_null($usuarioId)) {
-            return response()->json(["Favor informar nome, email, senha, hierarquia e o id do usuario(usuarioId)!"]);
+        if (is_null($nome) || is_null($email) || is_null($hierarquia) || is_null($usuarioId) || is_null($imagemPerfil)) {
+            return response()->json(["Favor informar nome, email, imagemPerfil, hierarquia e o id do usuario(usuarioId)!"]);
         }
 
         if (!$hierarquia === "adm" && !$hierarquia === "com") {
@@ -135,8 +132,8 @@ class Usuario extends Controller
         $usuarioAtualizado = new UsuarioModel();
         $usuarioAtualizado->setNome($nome)
             ->setEmail($email)
-            ->setSenha(password_hash($senha, PASSWORD_ARGON2I))
-            ->setHierarquia($hierarquia);
+            ->setHierarquia($hierarquia)
+            ->setImagemPerfil($imagemPerfil);
 
         $retorno = $this->usuarioFactory->updateUsuario($usuarioAtualizado, $usuarioId);
 
@@ -195,7 +192,8 @@ class Usuario extends Controller
             "id"    => $usuarioBusca->getId(),
             "nome"  => $usuarioBusca->getNome(),
             "email" => $usuarioBusca->getEmail(),
-            "hierarquia" => $usuarioBusca->getHierarquia()
+            "hierarquia" => $usuarioBusca->getHierarquia(),
+            "Imagem_perfil" =>$usuarioBusca->getImagemPerfil(),
         ];
 
         return response()->json($usuarioRetorno, 200);
