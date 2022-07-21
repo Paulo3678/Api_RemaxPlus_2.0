@@ -41,23 +41,28 @@ class Imovel extends Controller
             if (
                 !isset($imovelData['corretorId']) || !isset($imovelData['titulo']) || !isset($imovelData['descricao']) || !isset($imovelData['situacao']) ||
                 !isset($imovelData['tamanho']) || !isset($imovelData['preco']) || !isset($imovelData['numeroBanheiros']) || !isset($imovelData['numeroVagas']) ||
-                !isset($imovelData['numeroSuites']) || !isset($imovelData['numeroQuartos']) || !isset($imovelData['imagens'])
+                !isset($imovelData['numeroSuites']) || !isset($imovelData['numeroQuartos']) || !isset($imovelData['imagens']) || !isset($imovelData['tituloSlug'])
             ) {
-                return response()->json("Nem todos os dados foram encontrados, favor informar corretorId, titulo, descricao, situacao, tamanho, preco, numeroBanheiros, numeroVagas, numeroSuites, numeroQuartos, imagens", 406);
+                return response()->json("Nem todos os dados foram encontrados, favor informar corretorId, titulo, descricao, situacao, tamanho, preco, numeroBanheiros, numeroVagas, numeroSuites, numeroQuartos, imagens, tituloSlug", 404);
             }
+            $slug = $imovelData['tituloSlug'];
 
+
+            $validaSlug = $this->validarSlug($slug);
+            var_dump($slug);
+            if (!$validaSlug) {
+                return response()->json('Slug inválido! Não sãoé permitidos caracteres especiais, acentuações ou -- apenas - !', 404);
+            }
             $corretores = $this->corretorFactory->getCorretores($usuarioId);
-
 
             $corretorExiste = false;
 
             foreach ($corretores as $corretor) {
                 if ($corretor->Id_Corretor == $imovelData['corretorId']) {
                     $corretorExiste = true;
-                    
                 }
             }
-            if($corretorExiste === false){
+            if ($corretorExiste === false) {
                 return response()->json("Alguns dos corretores não pertencem a esse usuário. Favor informe apenas corretores válidos!", 404);
             }
             $imovel = new ImovelModel();
@@ -71,7 +76,8 @@ class Imovel extends Controller
                 ->setNumeroBanheiros($imovelData['numeroBanheiros'])
                 ->setNumeroVagas($imovelData['numeroVagas'])
                 ->setNumerosSuites($imovelData['numeroSuites'])
-                ->setNumeroQuartos($imovelData['numeroQuartos']);
+                ->setNumeroQuartos($imovelData['numeroQuartos'])
+                ->setTituloSlug($slug);
 
             foreach ($imovelData['imagens'] as $imagem) {
                 $imovel->addImagem($imagem);
@@ -81,7 +87,7 @@ class Imovel extends Controller
         }
 
         $resultadoSalvamento = $this->imovelFactory->createImovel($imoveis, $usuarioId);
-        
+
         if (!$resultadoSalvamento) {
             return response()->json("Erro ao salvar imóvel. Tente novamente mais tarde!", 503);
         }
@@ -236,6 +242,64 @@ class Imovel extends Controller
         $token = $this->buscarToken($cabecalho);
         if ($token->adm !== "adm") {
             return false;
+        }
+
+        return true;
+    }
+
+    private function validarSlug(string $slug)
+    {
+        $validacoes = [
+            preg_match("/--/", $slug),
+            preg_match("/ /", $slug),
+            preg_match("/#/", $slug),
+            preg_match("/[*]/", $slug),
+            preg_match("/,/", $slug),
+            preg_match("/[+]/", $slug),
+            preg_match("/,/", $slug),
+            preg_match("/[.]/", $slug),
+            preg_match("/;/", $slug),
+            preg_match("/[?]/", $slug),
+            preg_match("/'/", $slug),
+            preg_match('/"/', $slug),
+            preg_match("/}/", $slug),
+            preg_match("/{/", $slug),
+            preg_match("/]/", $slug),
+            preg_match('/~/', $slug),
+            preg_match("/`/", $slug),
+            preg_match("/´/", $slug),
+            preg_match("/á/", $slug),
+            preg_match("/à/", $slug),
+            preg_match("/Á/", $slug),
+            preg_match("/À/", $slug),
+            preg_match("/é/", $slug),
+            preg_match("/è/", $slug),
+            preg_match("/É/", $slug),
+            preg_match("/È/", $slug),
+            preg_match("/í/", $slug),
+            preg_match("/ì/", $slug),
+            preg_match("/ì/", $slug),
+            preg_match("/Í/", $slug),
+            preg_match("/Ì/", $slug),
+            preg_match("/ó/", $slug),
+            preg_match("/ò/", $slug),
+            preg_match("/Ó/", $slug),
+            preg_match("/Ò/", $slug),
+            preg_match("/ú/", $slug),
+            preg_match("/ù/", $slug),
+            preg_match("/Ú/", $slug),
+            preg_match("/Ù/", $slug),
+            preg_match("/[\/]/", $slug),
+            preg_match("/\\\\/", $slug),
+            preg_match("/[[]/", $slug),
+            preg_match("/=/", $slug)
+        ];
+
+        foreach ($validacoes as $key => $validacao) {
+
+            if ($validacao) {
+                return false;
+            }
         }
 
         return true;
