@@ -88,6 +88,21 @@ class UsuarioFactory
         return $statusAtualizacao;
     }
 
+    public function updateUsuarioPassword(UsuarioModel $usuario, int $usuarioId)
+    {
+        try {
+            $statusAtualizacao = DB::update("UPDATE Usuario SET 
+            nome='{$usuario->getNome()}', email='{$usuario->getEmail()}', hierarquia='{$usuario->getHierarquia()}', Imagem_perfil='{$usuario->getImagemPerfil()}', Senha='{$usuario->getSenha()}' 
+            WHERE Id='$usuarioId';");
+            return true;
+        } catch (\Throwable $e) {
+            // return false;
+            echo $e->getMessage();
+        }
+
+        return $statusAtualizacao;
+    }
+
     public function getUsuarioHierarquia(int $usuarioId)
     {
         try {

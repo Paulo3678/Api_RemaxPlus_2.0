@@ -120,7 +120,7 @@ class ImovelFactory
     {
         try {
             $pagina = $pagina === 0 ? 1 : $pagina;
-            $todos_imoveis = DB::select("SELECT * FROM Imovel");
+            $todos_imoveis = DB::select("SELECT * FROM Imovel WHERE Usuario_ID={$usuarioId}");
             // Contar o total de imoveis
             $total_imoveis = count($todos_imoveis);
 

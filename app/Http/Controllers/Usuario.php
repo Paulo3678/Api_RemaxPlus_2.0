@@ -39,10 +39,10 @@ class Usuario extends Controller
         }
 
         $buscaEmail = $this->usuarioFactory->getUsuario(["Email", $email]);
-        if($buscaEmail){
+        if ($buscaEmail) {
             return response()->json(["Usuario já existe! Favor tente outro e-mail."]);
         }
-     
+
         $senha  = password_hash($senha, PASSWORD_ARGON2I);
 
         if (!$hierarquia === "adm" && !$hierarquia === "com") {
@@ -149,13 +149,23 @@ class Usuario extends Controller
         $cabecalhoHttp = $request->header("Authorization");
         $token = $this->buscarToken($cabecalhoHttp);
 
+        $senhaAntiga = $request->input("senhaAntiga");
         $novaSenha = $request->input("novaSenha");
         $usuarioId = $request->input("usuarioId");
+
+        if (
+            is_null($senhaAntiga) ||
+            is_null($novaSenha) ||
+            is_null($usuarioId)
+        ) {
+            return response()->json(["Favor informar senhaAntiga, novaSenha e usarioId"], 403);
+        }
+        
 
         $usuarioIdToken = $token->usuario_id;
 
         if ($usuarioId !== $usuarioIdToken) {
-            return response()->json(["Hey hey, não tente fazer gracinhas!", 403]);
+            return response()->json(["Hey hey, não tente fazer gracinhas!"],403);
         }
 
         $usuario = $this->usuarioFactory->getUsuario(["id", $usuarioId]);
@@ -163,10 +173,16 @@ class Usuario extends Controller
         if (!$usuario) {
             return response()->json(["Usuário não encontrado! Verifique os campos e tente mais tarde."], 500);
         }
+
+        if(!password_verify($senhaAntiga, $usuario->getSenha())){
+            return response()->json(["Senha inválida!"], 404);
+        }
+
         $novaSenha = password_hash($novaSenha, PASSWORD_ARGON2I);
+
         $usuario->setSenha($novaSenha);
 
-        $statusAtualizacao = $this->usuarioFactory->updateUsuario($usuario, $usuarioId);
+        $statusAtualizacao = $this->usuarioFactory->updateUsuarioPassword($usuario, $usuarioId);
 
         if (!$statusAtualizacao) {
             return response()->json(["Erro ao atualizar usuário! Tente novamente mais tarde"], 500);
@@ -193,7 +209,7 @@ class Usuario extends Controller
             "nome"  => $usuarioBusca->getNome(),
             "email" => $usuarioBusca->getEmail(),
             "hierarquia" => $usuarioBusca->getHierarquia(),
-            "Imagem_perfil" =>$usuarioBusca->getImagemPerfil(),
+            "Imagem_perfil" => $usuarioBusca->getImagemPerfil(),
         ];
 
         return response()->json($usuarioRetorno, 200);
