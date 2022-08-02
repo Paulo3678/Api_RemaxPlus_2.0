@@ -10,6 +10,7 @@ use App\Factory\ImovelLeadFactory;
 use App\Http\Controllers\Controller;
 use DateTime;
 use PhpParser\Node\Expr\FuncCall;
+use PHPUnit\Runner\AfterLastTestHook;
 
 class ImovelLead extends Controller
 {
@@ -38,8 +39,8 @@ class ImovelLead extends Controller
         $cabecalho  = $request->header("Authorization");
         $token      = $this->buscarToken($cabecalho);
 
-        $busca  = $this->imovelLeadFactory->getImoveisLeads($token->usuario_id);
-        
+        $busca  = $this->imovelLeadFactory->getImoveisLeads($token->usuario_id, 0);
+
         if (!$busca) {
             return response()->json("Erro ao buscar ImoveisLeads, verifique as credenciais e tente novamente mais tarde", 500);
         }
@@ -50,13 +51,13 @@ class ImovelLead extends Controller
     {
         $cabecalho  = $request->header("Authorization");
         $token      = $this->buscarToken($cabecalho);
-        
-        if($paginaLead < 1){
+
+        if ($paginaLead < 1) {
             $paginaLead = 1;
         }
 
         $busca  = $this->imovelLeadFactory->getPaginatedImoveisLeads($token->usuario_id, $paginaLead);
-      
+
         if (!$busca) {
             return response()->json("Erro ao buscar ImoveisLeads, verifique as credenciais e tente novamente mais tarde", 500);
         }
@@ -68,13 +69,13 @@ class ImovelLead extends Controller
     {
         $cabecalho  = $request->header("Authorization");
         $token      = $this->buscarToken($cabecalho);
-        
-        if($paginaLead < 1){
+
+        if ($paginaLead < 1) {
             $paginaLead = 1;
         }
 
         $busca  = $this->imovelLeadFactory->getPaginatedCorretorImoveisLeads($token->usuario_id, $paginaLead, $corretorId);
-      
+
         if (!$busca) {
             return response()->json("Erro ao buscar ImoveisLeads, verifique as credenciais e tente novamente mais tarde", 500);
         }
@@ -86,7 +87,7 @@ class ImovelLead extends Controller
     {
         if (
             is_null($request->input("idImovel")) || is_null($request->input("dataLead")) ||
-            is_null($request->input("urlLead")) || is_null($request->input("emailCliente")) || 
+            is_null($request->input("urlLead")) || is_null($request->input("emailCliente")) ||
             is_null($request->input("telefoneCliente")) || is_null($request->input("cidadeCliente")) ||
             is_null($request->input("mensagem")) || is_null($request->input("corretorId"))
         ) {
@@ -121,6 +122,32 @@ class ImovelLead extends Controller
         $token = str_replace("Bearer ", "", $cabecalho);
         $tokenDecodificado = JWT::decode($token, new Key(env('JWT_KEY'), env('JWT_ALG')));
         return $tokenDecodificado;
+    }
+
+    public function buscarBuscarLeadsClientes(Request $request, int $paginaLead)
+    {
+        $cabecalho  = $request->header("Authorization");
+        $token      = $this->buscarToken($cabecalho);
+
+        $usuarioId = $request->usuarioId;
+
+        if (is_null($usuarioId)) {
+            return response()->json(["Favor informar usuarioId!"], 404);
+        }
+
+        if ($token->adm !== true) {
+            return response()->json(['Página válida apenas para adms'], 404);
+        }
+
+        $gerarPlanilha = $request->query("gerarPlanilha");
+        
+        if ($gerarPlanilha === null) {
+            $busca = $this->imovelLeadFactory->getImoveisLeads($usuarioId, $paginaLead);
+            return response()->json($busca, 200);
+        }
+
+        $busca = $this->imovelLeadFactory->getImoveisLeads($usuarioId, $paginaLead, false);
+        return response()->json($busca, 200);
     }
 
     private function validarAdm(int $userId)

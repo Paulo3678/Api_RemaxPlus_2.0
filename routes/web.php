@@ -41,7 +41,8 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->get('/imovel/imovel/leads/{imovelId}', 'ImovelLead@buscarImovelLeads');
     $router->get('/imovel/imovel/leads/pagina/{paginaLead}', 'ImovelLead@buscarImoveisLeadsPaginado');
     $router->get('/imovel/imovel/leads/corretor/{paginaLead}/{corretorId}', 'ImovelLead@buscarCorretorImoveisLeadsPaginado');
-    
+
+    $router->post('/imovel/admin/leads/{paginaLead}', 'ImovelLead@buscarBuscarLeadsClientes');
     
 
     // POST
