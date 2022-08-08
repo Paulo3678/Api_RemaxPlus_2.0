@@ -17,16 +17,11 @@ class Usuario extends Controller
     {
         $this->usuarioFactory = new UsuarioFactory();
     }
-
+    
+    // MIDDLEWARE VALIDA ADM CONFIGURADO
     public function cadastrarUsuario(Request $request)
     {
-        $cabecalhoHttp = $request->header("Authorization");
-        $token = $this->buscarToken($cabecalhoHttp);
-        $usuarioEhAdm = $this->validarAdm($token->usuario_id);
 
-        if (!$usuarioEhAdm) {
-            return response()->json(["Opss... Essa página só é permitida para usuários administradores"], 403);
-        }
 
         $nome       = $request->input("nome");
         $email      = $request->input("email");
@@ -66,16 +61,9 @@ class Usuario extends Controller
         return response()->json(['Usuário criado com sucesso!'], 200);
     }
 
+    // MIDDLEWARE VALIDA ADM CONFIGURADO
     public function excluirUsuario(Request $request)
     {
-        $cabecalhoHttp = $request->header("Authorization");
-        $token = $this->buscarToken($cabecalhoHttp);
-        $usuarioEhAdm = $this->validarAdm($token->usuario_id);
-
-        if (!$usuarioEhAdm) {
-            return response()->json(["Opss... Essa página só é permitida para usuários administradores"], 403);
-        }
-
         $idDoUsuarioParaExluir = $request->input("idParaExcluir");
 
         if (!$idDoUsuarioParaExluir) {
@@ -91,17 +79,9 @@ class Usuario extends Controller
         return response()->json(["Usuário removido com sucesso!"], 200);
     }
 
-
+    // MIDDLEWARE VALIDA ADM CONFIGURADO
     public function buscarTodosUsuarios(Request $request)
     {
-        $cabecalhoHttp = $request->header("Authorization");
-        $token = $this->buscarToken($cabecalhoHttp);
-        $usuarioEhAdm = $this->validarAdm($token->usuario_id);
-
-        if (!$usuarioEhAdm) {
-            return response()->json(["Opss... Essa página só é permitida para usuários administradores"], 403);
-        }
-
         $usuarios = $this->usuarioFactory->getUsuarios();
 
         return response()->json($usuarios, 200);
@@ -111,7 +91,6 @@ class Usuario extends Controller
     {
         $cabecalhoHttp = $request->header("Authorization");
         $token = $this->buscarToken($cabecalhoHttp);
-
 
         $nome       = $request->input("nome");
         $email      = $request->input("email");
@@ -160,12 +139,12 @@ class Usuario extends Controller
         ) {
             return response()->json(["Favor informar senhaAntiga, novaSenha e usarioId"], 403);
         }
-        
+
 
         $usuarioIdToken = $token->usuario_id;
 
         if ($usuarioId !== $usuarioIdToken) {
-            return response()->json(["Hey hey, não tente fazer gracinhas!"],403);
+            return response()->json(["Hey hey, não tente fazer gracinhas!"], 403);
         }
 
         $usuario = $this->usuarioFactory->getUsuario(["id", $usuarioId]);
@@ -174,7 +153,7 @@ class Usuario extends Controller
             return response()->json(["Usuário não encontrado! Verifique os campos e tente mais tarde."], 500);
         }
 
-        if(!password_verify($senhaAntiga, $usuario->getSenha())){
+        if (!password_verify($senhaAntiga, $usuario->getSenha())) {
             return response()->json(["Senha inválida!"], 404);
         }
 
@@ -195,7 +174,6 @@ class Usuario extends Controller
     {
         $cabecalhoHttp = $request->header("Authorization");
         $token = $this->buscarToken($cabecalhoHttp);
-        $usuarioEhAdm = $this->validarAdm($token->usuario_id);
 
         $usuarioIdToken = $token->usuario_id;
         $usuarioBusca   = $this->usuarioFactory->getUsuario(['id', $usuarioIdToken]);
@@ -233,17 +211,5 @@ class Usuario extends Controller
         $token = str_replace("Bearer ", "", $cabecalho);
         $tokenDecodificado = JWT::decode($token, new Key(env('JWT_KEY'), env('JWT_ALG')));
         return $tokenDecodificado;
-    }
-
-    private function validarAdm(int $userId)
-    {
-        $usuario = $this->usuarioFactory->getUsuario(['id', $userId]);
-        $hierarquiaUsuario = $usuario->getHierarquia();
-
-        if ($hierarquiaUsuario !== "adm") {
-            return false;
-        }
-
-        return true;
     }
 }

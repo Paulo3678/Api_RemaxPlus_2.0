@@ -2,35 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use DateTime;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Http\Request;
+use App\Factory\ImovelFactory;
 use App\Models\ImovelLeadModel;
+use PhpParser\Node\Expr\FuncCall;
 use App\Factory\ImovelLeadFactory;
 use App\Http\Controllers\Controller;
-use DateTime;
-use PhpParser\Node\Expr\FuncCall;
 use PHPUnit\Runner\AfterLastTestHook;
 
 class ImovelLead extends Controller
 {
     private $imovelLeadFactory;
+    private $imovelFactory;
 
     public function __construct()
     {
         $this->imovelLeadFactory = new ImovelLeadFactory();
+        $this->imovelFactory = new ImovelFactory();
     }
 
     public function buscarImovelLeads(Request $request, int $imovelId)
     {
-
         $cabecalho  = $request->header("Authorization");
         $token      = $this->buscarToken($cabecalho);
 
-        $resultadoBusca = $this->imovelLeadFactory->getImovelLeads($token->usuario_id, $imovelId);
-        if (!$resultadoBusca) {
-            return response()->json("Erro ao buscar ImovelLeads, verifique as credenciais e tente novamente mais tarde", 500);
+
+        // Imovel pertence a esse usuário ?
+        $imovel = $this->imovelFactory->getImovel($imovelId);
+
+        if ($imovel['Usuario_ID'] !== $token->usuario_id) {
+            return response()->json("Opss... Esse imóvel não pertence a esse usuário.", 404);
         }
+        
+        $resultadoBusca = $this->imovelLeadFactory->getImovelLeads($token->usuario_id, $imovelId);
         return response()->json($resultadoBusca, 200);
     }
 
@@ -47,6 +54,7 @@ class ImovelLead extends Controller
 
         return $busca;
     }
+
     public function buscarImoveisLeadsPaginado(Request $request, int $paginaLead)
     {
         $cabecalho  = $request->header("Authorization");
@@ -65,23 +73,23 @@ class ImovelLead extends Controller
         return $busca;
     }
 
-    public function buscarCorretorImoveisLeadsPaginado(Request $request, int $paginaLead, int $corretorId)
-    {
-        $cabecalho  = $request->header("Authorization");
-        $token      = $this->buscarToken($cabecalho);
+    // public function buscarCorretorImoveisLeadsPaginado(Request $request, int $paginaLead, int $corretorId)
+    // {
+    //     $cabecalho  = $request->header("Authorization");
+    //     $token      = $this->buscarToken($cabecalho);
 
-        if ($paginaLead < 1) {
-            $paginaLead = 1;
-        }
+    //     if ($paginaLead < 1) {
+    //         $paginaLead = 1;
+    //     }
 
-        $busca  = $this->imovelLeadFactory->getPaginatedCorretorImoveisLeads($token->usuario_id, $paginaLead, $corretorId);
+    //     $busca  = $this->imovelLeadFactory->getPaginatedCorretorImoveisLeads($token->usuario_id, $paginaLead, $corretorId);
 
-        if (!$busca) {
-            return response()->json("Erro ao buscar ImoveisLeads, verifique as credenciais e tente novamente mais tarde", 500);
-        }
+    //     if (!$busca) {
+    //         return response()->json("Erro ao buscar ImoveisLeads, verifique as credenciais e tente novamente mais tarde", 500);
+    //     }
 
-        return $busca;
-    }
+    //     return $busca;
+    // }
 
     public function criarImovelLead(Request $request)
     {
@@ -124,23 +132,18 @@ class ImovelLead extends Controller
         return $tokenDecodificado;
     }
 
+    // BUSCAR LEADS DE TODOS USUARIOS
     public function buscarBuscarLeadsClientes(Request $request, int $paginaLead)
     {
         $cabecalho  = $request->header("Authorization");
-        $token      = $this->buscarToken($cabecalho);
-
         $usuarioId = $request->usuarioId;
 
         if (is_null($usuarioId)) {
             return response()->json(["Favor informar usuarioId!"], 404);
         }
 
-        if ($token->adm !== true) {
-            return response()->json(['Página válida apenas para adms'], 404);
-        }
-
         $gerarPlanilha = $request->query("gerarPlanilha");
-        
+
         if ($gerarPlanilha === null) {
             $busca = $this->imovelLeadFactory->getImoveisLeads($usuarioId, $paginaLead);
             return response()->json($busca, 200);
@@ -148,40 +151,6 @@ class ImovelLead extends Controller
 
         $busca = $this->imovelLeadFactory->getImoveisLeads($usuarioId, $paginaLead, false);
         return response()->json($busca, 200);
-    }
-
-    private function validarAdm(int $userId)
-    {
-        $usuario = $this->usuarioFactory->getUsuario(['id', $userId]);
-        $hierarquiaUsuario = $usuario->getHierarquia();
-
-        if ($hierarquiaUsuario !== "adm") {
-            return false;
-        }
-
-        return true;
-    }
-
-    private function validarDataLead(string $dataLead)
-    {
-        $data = DateTime::createFromFormat("d/m/Y", $dataLead);
-
-        if (!checkdate($data->format('m'), $data->format('d'), $data->format('Y'))) {
-            return DateTime::createFromFormat("d/m/Y", "01/12/2004");
-        }
-        return $data;
-    }
-
-
-    private function validarHorarioLead(string $horario)
-    {
-        $horario = DateTime::createFromFormat("!H:i", $horario);
-
-        if (!$horario) {
-            return DateTime::createFromFormat('!H:i', "00:00");
-        }
-
-        return $horario;
     }
 
     private function validadarTelefone(string $telefone)

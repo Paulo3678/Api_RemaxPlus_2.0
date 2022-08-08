@@ -1,6 +1,10 @@
 <?php
 
-require_once __DIR__.'/../vendor/autoload.php';
+use App\Http\Middleware\ApenasUsuarios;
+use App\Http\Middleware\UsuarioMiddleware;
+use App\Http\Middleware\ValidaAdminMiddleware;
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
@@ -80,6 +84,15 @@ $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
 ]);
 
+$app->routeMiddleware([
+    'validaAdminMiddleware' => ValidaAdminMiddleware::class,
+]);
+
+$app->routeMiddleware([
+    'apenasUsuarios' => ApenasUsuarios::class,
+]);
+
+
 /*
 |--------------------------------------------------------------------------
 | Register Service Providers
@@ -109,7 +122,7 @@ $app->register(App\Providers\AuthServiceProvider::class);
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/web.php';
+    require __DIR__ . '/../routes/web.php';
 });
 
 return $app;

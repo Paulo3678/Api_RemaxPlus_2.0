@@ -49,7 +49,7 @@ class Imovel extends Controller
 
 
             $validaSlug = $this->validarSlug($slug);
-            var_dump($slug);
+
             if (!$validaSlug) {
                 return response()->json('Slug inválido! Não sãoé permitidos caracteres especiais, acentuações ou -- apenas - !', 404);
             }
@@ -190,7 +190,6 @@ class Imovel extends Controller
         ) {
             return response()->json("Nem todos os dados foram encontrados, favor informar corretorId, titulo, descricao, situacao, tamanho, preco, numeroBanheiros, numeroVagas, numeroSuites, numeroQuartos e imovelId", 406);
         }
-        var_dump(is_null($request->input('imovelId')));
 
         $cabecalho = $request->header("Authorization");
         $token = $this->buscarToken($cabecalho);
@@ -235,16 +234,6 @@ class Imovel extends Controller
         $token = str_replace("Bearer ", "", $cabecalho);
         $tokenDecodificado = JWT::decode($token, new Key(env('JWT_KEY'), env('JWT_ALG')));
         return $tokenDecodificado;
-    }
-
-    private function validarAdm($cabecalho)
-    {
-        $token = $this->buscarToken($cabecalho);
-        if ($token->adm !== "adm") {
-            return false;
-        }
-
-        return true;
     }
 
     private function validarSlug(string $slug)

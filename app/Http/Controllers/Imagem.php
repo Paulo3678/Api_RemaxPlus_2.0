@@ -116,14 +116,4 @@ class Imagem extends Controller
         $tokenDecodificado = JWT::decode($token, new Key(env('JWT_KEY'), env('JWT_ALG')));
         return $tokenDecodificado;
     }
-
-    private function validarAdm($cabecalho)
-    {
-        $token = $this->buscarToken($cabecalho);
-        if ($token->adm !== "adm") {
-            return false;
-        }
-
-        return true;
-    }
 }

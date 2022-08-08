@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\UsuarioMiddleware;
+
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 /*
@@ -23,53 +25,43 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     });
 
     // GET
-    $router->get('/usuario/usuarios', 'Usuario@buscarTodosUsuarios');
-    $router->get('/usuario/usuario', 'Usuario@buscarDadosUsuario');
+    // APENAS ADMS
+    $router->group(['middleware' => 'validaAdminMiddleware'], function () use ($router) {
+        $router->get('/usuario/usuarios', "Usuario@buscarTodosUsuarios");
+        $router->delete("/usuario/delete", "Usuario@excluirUsuario");
+        $router->post('/usuario/cadastrar', "Usuario@cadastrarUsuario");
+        $router->post('/imovel/admin/leads/{paginaLead}', 'ImovelLead@buscarBuscarLeadsClientes');
+    });
+
+    // APENAS USUÁRIOS
+    $router->group(['middleware' => 'apenasUsuarios'], function () use ($router) {
+        $router->get('/imovel/imovel/leads/{imovelId}', 'ImovelLead@buscarImovelLeads');
+        $router->get('/imovel/imoveis/leads', 'ImovelLead@buscarImoveisLeads');
+        $router->get('/imovel/imovel/leads/pagina/{paginaLead}', 'ImovelLead@buscarImoveisLeadsPaginado');
+        // $router->get('/imovel/imovel/leads/corretor/{paginaLead}/{corretorId}', 'ImovelLead@buscarCorretorImoveisLeadsPaginado');
+        $router->post('/imovel/leads/adicionar', 'ImovelLead@criarImovelLead');
+        $router->post('/corretor/criar', 'Corretor@criarCorretor');
+        $router->get('/corretor/corretores', 'Corretor@buscarCorretores');
+        $router->get('/corretor/corretor/{idCorretorParaBuscar}', 'Corretor@buscarCorretor');
+        $router->delete("/corretor/delete", "Corretor@excluirCorretor");
+        $router->put("/corretor/atualizar", "Corretor@atualizarCorretor");
+        $router->put("/imovel/imagem/atualizar/capa", 'Imagem@atualizarImagemCapaImovel');
+        $router->post('/imovel/imagem/adicionar', 'Imagem@adicionarImagem');
+        $router->delete("/imovel/imagem/delete", "Imagem@excluirImagem");
+        $router->get('/imovel/imagens/buscar/{imovelId}', 'Imagem@buscarImagensImovel');
+        $router->put("/imovel/atualizar", 'Imovel@atualizarDadosImovel');
+        $router->post('/imovel/adicionar', 'Imovel@criarImovel');
+        $router->delete("/imovel/delete", "Imovel@excluirImovel");
+        $router->get('/imovel/corretor/buscar', 'Imovel@buscarImovelCorretor');
+        $router->get('/imovel/imoveis', 'Imovel@buscarImoveis');
+        $router->get('/imovel/imovel/{idImovel}', 'Imovel@buscarImovel');
+        $router->get('/imovel/imovel/pagina/{pagina}', 'Imovel@buscarImoveisPorPagina');
+    });
+
+
     $router->get('/usuario/usuario/hierarquia', 'Usuario@verificarHierarquia');
     
-    $router->get('/corretor/corretores', 'Corretor@buscarCorretores');
-    $router->get('/corretor/corretor/{idCorretorParaBuscar}', 'Corretor@buscarCorretor');
-
-    $router->get('/imovel/corretor/buscar', 'Imovel@buscarImovelCorretor');
-    $router->get('/imovel/imoveis', 'Imovel@buscarImoveis');
-    $router->get('/imovel/imovel/{idImovel}', 'Imovel@buscarImovel');
-    $router->get('/imovel/imovel/pagina/{pagina}', 'Imovel@buscarImoveisPorPagina');
-
-    $router->get('/imovel/imagens/buscar/{imovelId}', 'Imagem@buscarImagensImovel');
-
-    $router->get('/imovel/imoveis/leads', 'ImovelLead@buscarImoveisLeads');
-    $router->get('/imovel/imovel/leads/{imovelId}', 'ImovelLead@buscarImovelLeads');
-    $router->get('/imovel/imovel/leads/pagina/{paginaLead}', 'ImovelLead@buscarImoveisLeadsPaginado');
-    $router->get('/imovel/imovel/leads/corretor/{paginaLead}/{corretorId}', 'ImovelLead@buscarCorretorImoveisLeadsPaginado');
-
-    $router->post('/imovel/admin/leads/{paginaLead}', 'ImovelLead@buscarBuscarLeadsClientes');
-    
-
-    // POST
-    $router->post('/usuario/cadastrar', "Usuario@cadastrarUsuario");
-   
-    $router->post('/corretor/criar', 'Corretor@criarCorretor');
-   
-    $router->post('/imovel/adicionar', 'Imovel@criarImovel');
-    $router->post('/imovel/imagem/adicionar', 'Imagem@adicionarImagem');
-
-    $router->post('/imovel/leads/adicionar', 'ImovelLead@criarImovelLead');
-
-
-    // DELETE
-    $router->delete("/usuario/delete", "Usuario@excluirUsuario");
-   
-    $router->delete("/corretor/delete", "Corretor@excluirCorretor");
-   
-    $router->delete("/imovel/delete", "Imovel@excluirImovel");
-    $router->delete("/imovel/imagem/delete", "Imagem@excluirImagem");
-
-    // PUT
+    $router->get('/usuario/usuario', 'Usuario@buscarDadosUsuario');
     $router->put("/usuario/atualizar", "Usuario@atualizarUsuario");
     $router->put("/usuario/atualizar/senha", "Usuario@atualizarSenha");
-   
-    $router->put("/corretor/atualizar", "Corretor@atualizarCorretor");
-   
-    $router->put("/imovel/atualizar", 'Imovel@atualizarDadosImovel');
-    $router->put("/imovel/imagem/atualizar/capa", 'Imagem@atualizarImagemCapaImovel');
 });

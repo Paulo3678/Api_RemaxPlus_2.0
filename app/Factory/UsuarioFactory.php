@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\DB;
 
 class UsuarioFactory
 {
+
+
+
+
     // ['campo', 'valor']
     public function getUsuario(array $modoBusca)
     {
@@ -56,7 +60,18 @@ class UsuarioFactory
     public function getUsuarios()
     {
         try {
-            $usuarios = DB::select("SELECT * FROM Usuario");
+            $search = DB::select("SELECT * FROM Usuario");
+            $usuarios = [];
+
+            foreach ($search as $usuario) {
+                $usuarios[] = [
+                    "Id" => $usuario->Id,
+                    "Nome" => $usuario->Nome,
+                    "Email" => $usuario->Email,
+                    "Hierarquia" => $usuario->Hierarquia,
+                    "Imagem_perfil" => $usuario->Imagem_perfil
+                ];
+            }
             return $usuarios;
         } catch (\Throwable $e) {
             return false;

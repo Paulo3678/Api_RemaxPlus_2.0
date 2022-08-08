@@ -26,11 +26,7 @@ class Corretor extends Controller
     public function criarCorretor(Request $request)
     {
         $cabecalho  = $request->header("Authorization");
-        $usuarioEhAdm = $this->validarAdm($cabecalho);
 
-        if ($usuarioEhAdm) {
-            return response()->json("Opss... Esta página é exclusiva para usuarios, favor deixe que eles resolvam.", 403);
-        }
         $dadosToken = $this->buscarToken($cabecalho);
 
         $nome           = $request->input("nome");
@@ -64,15 +60,9 @@ class Corretor extends Controller
     public function buscarCorretores(Request $request)
     {
         $cabecalho  = $request->header("Authorization");
-        $usuarioEhAdm = $this->validarAdm($cabecalho);
-
-        if ($usuarioEhAdm) {
-            return response()->json("Opss... Esta página é exclusiva para usuarios, favor deixe que eles resolvam.", 403);
-        }
+        
         $dadosToken = $this->buscarToken($cabecalho);
-
         $idUsuario = $dadosToken->usuario_id;
-
         $corretores = $this->corretorFactory->getCorretores($idUsuario);
 
         if ($corretores === false) {
@@ -85,11 +75,6 @@ class Corretor extends Controller
     public function buscarCorretor(Request $request, int $idCorretorParaBuscar)
     {
         $cabecalho  = $request->header("Authorization");
-        $usuarioEhAdm = $this->validarAdm($cabecalho);
-
-        if ($usuarioEhAdm) {
-            return response()->json("Opss... Esta página é exclusiva para usuarios, favor deixe que eles resolvam.", 403);
-        }
         
         $dadosToken = $this->buscarToken($cabecalho);
 
@@ -118,13 +103,6 @@ class Corretor extends Controller
 
     public function excluirCorretor(Request $request)
     {
-        $cabecalho      = $request->header("Authorization");
-        $usuarioEhAdm   = $this->validarAdm($cabecalho);
-
-        if ($usuarioEhAdm) {
-            return response()->json("Opss... Esta página é exclusiva para usuarios, favor deixe que eles resolvam.", 403);
-        }
-
         $corretorParaExcluir = $request->input("corretorId");
 
         if (is_null($corretorParaExcluir)) {
@@ -142,13 +120,6 @@ class Corretor extends Controller
 
     public function atualizarCorretor(Request $request)
     {
-        $cabecalho      = $request->header("Authorization");
-        $usuarioEhAdm   = $this->validarAdm($cabecalho);
-
-        if ($usuarioEhAdm) {
-            return response()->json("Opss... Esta página é exclusiva para usuarios, favor deixe que eles resolvam.", 403);
-        }
-
         $corretorId     = $request->input("corretorId");
         $nome           = $request->input("nome");
         $email          = $request->input("email");
@@ -184,14 +155,4 @@ class Corretor extends Controller
         return $tokenDecodificado;
     }
 
-    private function validarAdm($cabecalho)
-    {
-        $token = $this->buscarToken($cabecalho);
-
-        if ($token->adm !== "adm") {
-            return false;
-        }
-
-        return true;
-    }
 }
