@@ -6,8 +6,8 @@ class ImovelModel
 {
     private $id, $corretorId, $titulo, $tituloSlug, $imagemCapa,
         $descricao, $situacao, $tamanho, $usuarioId,
-        $preco, $numeroQuartos, $numeroBanheiros, $numeroVagas, 
-        $numerosSuites, $imagens;
+        $preco, $numeroQuartos, $numeroBanheiros, $numeroVagas,
+        $numerosSuites, $imagens, $bairro, $cidade, $codigoImovel;
 
     public function __construct()
     {
@@ -201,6 +201,42 @@ class ImovelModel
     public function setImagemCapa($imagemCapa)
     {
         $this->imagemCapa = $imagemCapa;
+        return $this;
+    }
+
+    public function getBairro()
+    {
+        return $this->bairro;
+    }
+
+    public function setBairro($bairro)
+    {
+        $this->bairro = $bairro;
+
+        return $this;
+    }
+
+    public function getCidade()
+    {
+        return $this->cidade;
+    }
+
+    public function setCidade($cidade)
+    {
+        $this->cidade = $cidade;
+
+        return $this;
+    }
+
+    public function getCodigoImovel()
+    {
+        return $this->codigoImovel;
+    }
+
+    public function setCodigoImovel($codigoImovel)
+    {
+        $this->codigoImovel = $codigoImovel;
+
         return $this;
     }
 }

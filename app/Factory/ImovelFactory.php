@@ -24,6 +24,9 @@ class ImovelFactory
                     "Situacao" => $imovel->getSituacao(),
                     "Tamanho" => $imovel->getTamanho(),
                     "Preco" => $imovel->getPreco(),
+                    "Bairro" => $imovel->getBairro(),
+                    "Cidade" => $imovel->getCidade(),
+                    "Codigo_Imovel" => $imovel->getCodigoImovel(),
                     "Numero_Quartos" => $imovel->getNumeroQuartos(),
                     "Numero_Banheiros" => $imovel->getNumeroBanheiros(),
                     "Numero_Vagas" => $imovel->getNumeroVagas(),
@@ -44,7 +47,6 @@ class ImovelFactory
             var_dump($e->getMessage());
             // return false;
         }
-        
     }
 
     public function removeImovel(int $imovelId)
@@ -73,6 +75,9 @@ class ImovelFactory
                 "Situacao" => $imovelData[0]->Situacao,
                 "Tamanho" => $imovelData[0]->Tamanho,
                 "Preco" => $imovelData[0]->Preco,
+                "Bairro" => $imovelData[0]->Bairro,
+                "Cidade" => $imovelData[0]->Cidade,
+                "Codigo_Imovel" => $imovelData[0]->Codigo_Imovel,
                 "Numero_Quartos" => $imovelData[0]->Numero_Quartos,
                 "Numero_Banheiros" => $imovelData[0]->Numero_Banheiros,
                 "Numero_Vagas" => $imovelData[0]->Numero_Vagas,
@@ -135,7 +140,7 @@ class ImovelFactory
 
             // Buscando os imoveis
             $result = DB::select("SELECT * FROM Imovel INNER JOIN Corretor ON Corretor.Id_Corretor=Imovel.Corretor_Id WHERE Usuario_ID={$usuarioId} LIMIT {$inicio}, {$imoveis_por_pagina}");
-  
+
             return [
                 "total_paginas" => $numero_paginas,
                 "imoveis"       => $result
@@ -152,13 +157,15 @@ class ImovelFactory
             DB::update("UPDATE `remaxplus`.`Imovel`
             SET
                 `Corretor_Id` = {$imovel->getCorretorId()},
-                `Usuario_ID` = {$imovel->getUsuarioId()},
                 `Titulo` = '{$imovel->getTitulo()}',
                 `Titulo_Slug` = '{$imovel->getTituloSlug()}',
                 `Descricao` = '{$imovel->getDescricao()}',
                 `Situacao` = '{$imovel->getSituacao()}',
                 `Tamanho` = {$imovel->getTamanho()},
                 `Preco` = '{$imovel->getPreco()}',
+                `Bairro` = '{$imovel->getBairro()}',
+                `Cidade` = '{$imovel->getCidade()}',
+                `Codigo_Imovel` = '{$imovel->getCodigoImovel()}',
                 `Numero_Quartos` = {$imovel->getNumeroQuartos()},
                 `Numero_Banheiros` = {$imovel->getNumeroBanheiros()},
                 `Numero_Vagas` = {$imovel->getNumeroVagas()},
@@ -167,7 +174,8 @@ class ImovelFactory
             ");
             return true;
         } catch (\Throwable $e) {
-            return false;
+            // return false;
+            echo $e->getMessage();
         }
     }
 }

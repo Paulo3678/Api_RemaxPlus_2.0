@@ -41,18 +41,20 @@ class Imovel extends Controller
             if (
                 !isset($imovelData['corretorId']) || !isset($imovelData['titulo']) || !isset($imovelData['descricao']) || !isset($imovelData['situacao']) ||
                 !isset($imovelData['tamanho']) || !isset($imovelData['preco']) || !isset($imovelData['numeroBanheiros']) || !isset($imovelData['numeroVagas']) ||
-                !isset($imovelData['numeroSuites']) || !isset($imovelData['numeroQuartos']) || !isset($imovelData['imagens']) || !isset($imovelData['tituloSlug'])
+                !isset($imovelData['numeroSuites']) || !isset($imovelData['numeroQuartos']) || !isset($imovelData['imagens']) || !isset($imovelData['tituloSlug']) ||
+                !isset($imovelData['bairro']) || !isset($imovelData['cidade']) || !isset($imovelData['codigoImovel'])
             ) {
-                return response()->json("Nem todos os dados foram encontrados, favor informar corretorId, titulo, descricao, situacao, tamanho, preco, numeroBanheiros, numeroVagas, numeroSuites, numeroQuartos, imagens, tituloSlug", 404);
+                return response()->json("Nem todos os dados foram encontrados, favor informar corretorId, titulo, descricao, situacao, tamanho, preco, bairro, cidade, codigoImovel, numeroBanheiros, numeroVagas, numeroSuites, numeroQuartos, imagens, tituloSlug", 404);
             }
-            $slug = $imovelData['tituloSlug'];
 
+            $slug = $imovelData['tituloSlug'];
 
             $validaSlug = $this->validarSlug($slug);
 
             if (!$validaSlug) {
                 return response()->json('Slug inválido! Não sãoé permitidos caracteres especiais, acentuações ou -- apenas - !', 404);
             }
+
             $corretores = $this->corretorFactory->getCorretores($usuarioId);
 
             $corretorExiste = false;
@@ -73,6 +75,9 @@ class Imovel extends Controller
                 ->setSituacao($imovelData['situacao'])
                 ->setTamanho($imovelData['tamanho'])
                 ->setPreco($imovelData['preco'])
+                ->setBairro($imovelData['bairro'])
+                ->setCidade($imovelData['cidade'])
+                ->setCodigoImovel($imovelData['codigoImovel'])
                 ->setNumeroBanheiros($imovelData['numeroBanheiros'])
                 ->setNumeroVagas($imovelData['numeroVagas'])
                 ->setNumerosSuites($imovelData['numeroSuites'])
@@ -182,13 +187,13 @@ class Imovel extends Controller
 
     public function atualizarDadosImovel(Request $request)
     {
-
         if (
             is_null($request->input('corretorId')) || is_null($request->input('titulo')) || is_null($request->input('descricao')) || is_null($request->input('situacao')) ||
             is_null($request->input('tamanho')) || is_null($request->input('preco')) || is_null($request->input('numeroBanheiros')) || is_null($request->input('numeroVagas')) ||
-            is_null($request->input('numeroSuites')) || is_null($request->input('numeroQuartos')) || is_null($request->input('imovelId'))
+            is_null($request->input('numeroSuites')) || is_null($request->input('numeroQuartos')) || is_null($request->input('tituloSlug')) ||
+            is_null($request->input('bairro')) || is_null($request->input('cidade')) || is_null($request->input('codigoImovel'))
         ) {
-            return response()->json("Nem todos os dados foram encontrados, favor informar corretorId, titulo, descricao, situacao, tamanho, preco, numeroBanheiros, numeroVagas, numeroSuites, numeroQuartos e imovelId", 406);
+            return response()->json("Nem todos os dados foram encontrados, favor informar corretorId, titulo, descricao, situacao, tamanho, preco, bairro, cidade, codigoImovel, numeroBanheiros, numeroVagas, numeroSuites, numeroQuartos, tituloSlug", 404);
         }
 
         $cabecalho = $request->header("Authorization");
@@ -203,18 +208,29 @@ class Imovel extends Controller
             return response()->json("Erro ao encontrar imovel, verifique as credenciais e tente novamente mais tarde.", 500);
         }
 
+        $slug = $request->input('tituloSlug');
+
+        $validaSlug = $this->validarSlug($slug);
+
+        if (!$validaSlug) {
+            return response()->json('Slug inválido! Não sãoé permitidos caracteres especiais, acentuações ou -- apenas - !', 404);
+        }
 
         $novoImovel->setCorretorId($request->input('corretorId'))
             ->setTitulo($request->input('titulo'))
-            ->setUsuarioId($token->usuario_id)
             ->setDescricao($request->input('descricao'))
             ->setSituacao($request->input('situacao'))
             ->setTamanho($request->input('tamanho'))
             ->setPreco($request->input('preco'))
+            ->setBairro($request->input('bairro'))
+            ->setCidade($request->input('cidade'))
+            ->setCodigoImovel($request->input('codigoImovel'))
             ->setNumeroBanheiros($request->input('numeroBanheiros'))
             ->setNumeroVagas($request->input('numeroVagas'))
             ->setNumerosSuites($request->input('numeroSuites'))
-            ->setNumeroQuartos($request->input('numeroQuartos'));
+            ->setNumeroQuartos($request->input('numeroQuartos'))
+            ->setTituloSlug($slug);
+
 
         if ($token->usuario_id !== $imovelAntigo['Usuario_ID']) {
             return response()->json("Opss... Esso imóvel não pertence a esse usuario");
